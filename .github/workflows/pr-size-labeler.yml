@@ -46,4 +46,4 @@ jobs:
           gh pr edit ${{ github.event.pull_request.number }} --add-label "$SIZE_LABEL"
 
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
