@@ -1,32 +1,21 @@
 name: labeler
+# 트리거될 이벤트 설정
+on:
+  pull_request:
+    types: [opened]
 
-on: [pull_request]
-
+# 트리거되었을 때 실행될 job 작성
 jobs:
   labeler:
-    permissions:
-      pull-requests: write
-      contents: read
-      issues: write
+    # runner 설정
     runs-on: ubuntu-latest
-    name: Label the PR size
+    # 리파지토리에 대한 권한 설정
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - uses: codelytv/pr-size-labeler@v1
+      - name: Check Labels
+        id: labeler
+        uses: jimschubert/labeler-action@v1
         with:
-          xs_label: 'size/xs'
-          xs_max_size: '10'
-          s_label: 'size/s'
-          s_max_size: '100'
-          m_label: 'size/m'
-          m_max_size: '500'
-          l_label: 'size/l'
-          l_max_size: '1000'
-          xl_label: 'size/xl'
-          fail_if_xl: 'false'
-          message_if_xl: >
-            This PR exceeds the recommended size of 1000 lines.
-            Please make sure you are NOT addressing multiple issues with one PR.
-            Note this PR might be rejected due to its size.
-          github_api_url: 'https://api.github.com'
-          files_to_ignore: ''
-          GITHUB_TOKEN: ${{ secrets.G_TOKEN }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
