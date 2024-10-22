@@ -1,4 +1,5 @@
-name: labeler
+# workflow 의 이름
+name: PR labeler
 # 트리거될 이벤트 설정
 on:
   pull_request:
