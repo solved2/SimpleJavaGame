@@ -6,7 +6,8 @@ import java.util.List;
 
 public class MapPanel extends JPanel {
     private static final int MAP_SIZE = 500;
-    private static final int CELL_SIZE = 25; // 격자를 더 촘촘하게 변경
+    private static final int CELL_SIZE = 25;
+    private static final int OFFSET = 10;
     private int mapX, mapY;
     private Rectangle[] portals;
     private Image portalImage;
@@ -26,7 +27,7 @@ public class MapPanel extends JPanel {
         portals = new Rectangle[4];
         int portalSize = CELL_SIZE * 2;
         portals[0] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, 0, portalSize, portalSize); // 북쪽 포탈
-        portals[1] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, MAP_SIZE - portalSize, portalSize, portalSize); // 남쪽 포탈
+        portals[1] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, MAP_SIZE - portalSize - OFFSET, portalSize, portalSize); // 남쪽 포탈
         portals[2] = new Rectangle(0, MAP_SIZE / 2 - portalSize / 2, portalSize, portalSize); // 서쪽 포탈
         portals[3] = new Rectangle(MAP_SIZE - portalSize, MAP_SIZE / 2 - portalSize / 2, portalSize, portalSize); // 동쪽 포탈
 

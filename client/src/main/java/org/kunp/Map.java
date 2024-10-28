@@ -9,6 +9,8 @@ import java.util.List;
 public class Map extends JFrame {
     private static final int VIEW_SIZE = 500;
     private static final int MOVE_STEP = 25;
+    private static final int PLAYER_X = 28;
+    private static final int PLAYER_Y = 53;
     private MapPanel[][] maps;
     private int currentMapX = 1, currentMapY = 1;
     private List<Player> players;
@@ -69,10 +71,11 @@ public class Map extends JFrame {
 
     private void moveMap(int x, int y) {
         int newX = currentMapX, newY = currentMapY;
-        if (x == 0) newX = Math.max(currentMapX - 1, 0); // 서쪽 포탈
-        if (x == VIEW_SIZE - MOVE_STEP) newX = Math.min(currentMapX + 1, 2); // 동쪽 포탈
-        if (y == 0) newY = Math.max(currentMapY - 1, 0); // 북쪽 포탈
-        if (y == VIEW_SIZE - MOVE_STEP) newY = Math.min(currentMapY + 1, 2); // 남쪽 포탈
+        if (x <= PLAYER_X) newX = Math.max(currentMapX - 1, 0); // 서쪽 포탈
+        if (x >= VIEW_SIZE - PLAYER_X - MOVE_STEP) newX = Math.min(currentMapX + 1, 2); // 동쪽 포탈
+        if (y <= PLAYER_Y) newY = Math.max(currentMapY - 1, 0); // 북쪽 포탈
+        if (y >= VIEW_SIZE - PLAYER_Y - MOVE_STEP) newY = Math.min(currentMapY + 1, 2); // 남쪽 포탈
+
 
         remove(maps[currentMapX][currentMapY]);
         currentMapX = newX;
@@ -88,7 +91,7 @@ public class Map extends JFrame {
     }
 
     private void updateLocationLabel() {
-        Player player = players.get(0); // 현재는 첫 번째 플레이어만 출력
+        Player player = players.getFirst(); // 현재는 첫 번째 플레이어만 출력
         System.out.println("현재 맵: (" + currentMapX + ", " + currentMapY + ") | 플레이어 위치: (" + player.getX() + ", " + player.getY() + ")");
     }
 }
