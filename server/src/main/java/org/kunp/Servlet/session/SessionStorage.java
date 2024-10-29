@@ -8,4 +8,6 @@ public interface SessionStorage {
   void remove(String key);
 
   void clear();
+
+  int size();
 }

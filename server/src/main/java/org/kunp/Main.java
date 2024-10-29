@@ -3,7 +3,6 @@ package org.kunp;
 import static org.kunp.ServerConstant.*;
 
 import java.net.ServerSocket;
-import java.util.Map;
 import java.util.Optional;
 import org.kunp.Servlet.*;
 import org.kunp.Servlet.session.*;
@@ -84,13 +83,9 @@ public class Main {
           Thread.sleep(MONITOR_SLEEP_DURATION_MS);
           System.out.println();
         } catch (InterruptedException e) {
-          e.printStackTrace();
         }
         System.out.println("Active threads: " + Thread.activeCount());
-        Map<Thread, StackTraceElement[]> allThreads = Thread.getAllStackTraces();
-        for (Thread thread : allThreads.keySet()) {
-          System.out.println("Thread name: " + thread.getName() + ", State: " + thread.getState());
-        }
+        System.out.println("Active Sessions : " + sessionStorage.size());
       }
     }
   }

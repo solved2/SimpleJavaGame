@@ -26,4 +26,9 @@ public class SessionInMemoryStorage implements SessionStorage {
   public void clear() {
     sessionMap.clear();
   }
+
+  @Override
+  public int size() {
+    return sessionMap.size();
+  }
 }
