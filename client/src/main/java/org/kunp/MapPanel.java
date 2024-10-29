@@ -20,7 +20,7 @@ public class MapPanel extends JPanel {
         setPreferredSize(new Dimension(MAP_SIZE, MAP_SIZE));
         setFocusable(true);
         initializePortals();
-        portalImage = new ImageIcon(getClass().getResource("/portal.png")).getImage(); // 포탈 이미지 경로 설정
+        portalImage = new ImageIcon(getClass().getResource("/portal.png")).getImage();
     }
 
     private void initializePortals() {

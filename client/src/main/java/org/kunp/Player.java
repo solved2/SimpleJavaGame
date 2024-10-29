@@ -8,7 +8,7 @@ public class Player {
     private Image image;
     private String role;
     private static final int IMAGE_SIZE_X = 28;
-    private static final int IMAGE_SIZE_Y = 53;// 이미지 크기를 작게 설정
+    private static final int IMAGE_SIZE_Y = 53;
 
     public Player(int startX, int startY, String role, String imagePath) {
         this.x = startX;
@@ -25,6 +25,7 @@ public class Player {
         return y;
     }
 
+    //todo: 술래, 도둑 랜덤 설정
     public String getRole() {
         return role;
     }
@@ -35,7 +36,7 @@ public class Player {
     }
 
     public void draw(Graphics g) {
-        g.drawImage(image, x, y, IMAGE_SIZE_X, IMAGE_SIZE_Y, null); // 이미지를 작게 그리기
+        g.drawImage(image, x, y, IMAGE_SIZE_X, IMAGE_SIZE_Y, null);
     }
 }
 

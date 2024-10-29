@@ -20,6 +20,8 @@ public class Map extends JFrame {
         setSize(VIEW_SIZE, VIEW_SIZE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         players = new ArrayList<>();
+
+        //테스트를 위한 술래, 도둑 플레이어 추가
         players.add(new Player(VIEW_SIZE / 2, VIEW_SIZE / 2, "술래", "/tagger.png")); // 술래 이미지 경로 설정
         players.add(new Player(VIEW_SIZE / 2 + 50, VIEW_SIZE / 2 + 50, "도둑", "/normal.png")); // 도둑 이미지 경로 설정
 
@@ -44,7 +46,9 @@ public class Map extends JFrame {
     }
 
     private void movePlayer(int keyCode) {
-        Player player = players.get(0); // 현재는 첫 번째 플레이어만 이동
+        // 현재는 첫 번째 플레이어만 이동
+        // todo: 모든 플레이어가 각자 이동하도록..
+        Player player = players.get(0);
         int newX = player.getX(), newY = player.getY();
         switch (keyCode) {
             case KeyEvent.VK_UP:
