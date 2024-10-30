@@ -6,8 +6,7 @@ import java.util.List;
 
 public class MapPanel extends JPanel {
     private static final int MAP_SIZE = 500;
-    private static final int CELL_SIZE = 25;
-    private static final int OFFSET = 10;
+    private static final int CELL_SIZE = 10; // 자연스러운 움직임을 위한 셀 사이즈 조정
     private int mapX, mapY;
     private Rectangle[] portals;
     private Image portalImage;
@@ -25,9 +24,9 @@ public class MapPanel extends JPanel {
 
     private void initializePortals() {
         portals = new Rectangle[4];
-        int portalSize = CELL_SIZE * 2;
+        int portalSize = CELL_SIZE * 5;
         portals[0] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, 0, portalSize, portalSize); // 북쪽 포탈
-        portals[1] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, MAP_SIZE - portalSize - OFFSET, portalSize, portalSize); // 남쪽 포탈
+        portals[1] = new Rectangle(MAP_SIZE / 2 - portalSize / 2, MAP_SIZE - portalSize, portalSize, portalSize); // 남쪽 포탈
         portals[2] = new Rectangle(0, MAP_SIZE / 2 - portalSize / 2, portalSize, portalSize); // 서쪽 포탈
         portals[3] = new Rectangle(MAP_SIZE - portalSize, MAP_SIZE / 2 - portalSize / 2, portalSize, portalSize); // 동쪽 포탈
 
@@ -46,7 +45,7 @@ public class MapPanel extends JPanel {
     }
 
     private void drawMap(Graphics g) {
-        g.setColor(Color.GRAY);
+        g.setColor(new Color(200, 200, 200)); // 격자 색을 약간 연하게 수정
         for (int i = 0; i < MAP_SIZE; i += CELL_SIZE) {
             for (int j = 0; j < MAP_SIZE; j += CELL_SIZE) {
                 g.drawRect(i, j, CELL_SIZE, CELL_SIZE);
@@ -66,13 +65,13 @@ public class MapPanel extends JPanel {
         }
     }
 
-    public boolean isPortal(int x, int y) {
-        for (Rectangle portal : portals) {
-            if (portal != null && portal.contains(x, y)) {
-                return true;
+    public int isPortal(int x, int y) {
+        for(int i=0; i<portals.length; i++) {
+            if (portals[i] != null && portals[i].contains(x, y)) {
+                return i;
             }
         }
-        return false;
+        return -1;
     }
 }
 
