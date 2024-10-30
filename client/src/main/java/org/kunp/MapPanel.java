@@ -2,6 +2,8 @@ package org.kunp;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class MapPanel extends JPanel {
@@ -20,6 +22,28 @@ public class MapPanel extends JPanel {
         setFocusable(true);
         initializePortals();
         portalImage = new ImageIcon(getClass().getResource("/portal.png")).getImage();
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                Player player = players.get(0); // 현재는 첫 번째 플레이어만 제어
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_UP:
+                        player.move(0, -CELL_SIZE);
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        player.move(0, CELL_SIZE);
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        player.move(-CELL_SIZE, 0);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        player.move(CELL_SIZE, 0);
+                        break;
+                }
+                repaint();
+            }
+        });
     }
 
     private void initializePortals() {
@@ -45,13 +69,13 @@ public class MapPanel extends JPanel {
     }
 
     private void drawMap(Graphics g) {
-        g.setColor(new Color(200, 200, 200)); // 격자 색을 약간 연하게 수정
+        g.setColor(new Color(200, 200, 200));
         for (int i = 0; i < MAP_SIZE; i += CELL_SIZE) {
             for (int j = 0; j < MAP_SIZE; j += CELL_SIZE) {
                 g.drawRect(i, j, CELL_SIZE, CELL_SIZE);
             }
         }
-        // 포탈 그리기
+
         for (Rectangle portal : portals) {
             if (portal != null) {
                 g.drawImage(portalImage, portal.x, portal.y, portal.width, portal.height, null);
@@ -66,7 +90,7 @@ public class MapPanel extends JPanel {
     }
 
     public int isPortal(int x, int y) {
-        for(int i=0; i<portals.length; i++) {
+        for (int i = 0; i < portals.length; i++) {
             if (portals[i] != null && portals[i].contains(x, y)) {
                 return i;
             }
@@ -74,5 +98,3 @@ public class MapPanel extends JPanel {
         return -1;
     }
 }
-
-

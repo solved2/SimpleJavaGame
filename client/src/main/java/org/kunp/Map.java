@@ -3,43 +3,25 @@ package org.kunp;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 import java.util.List;
 
-public class Map extends JFrame {
+public class Map extends JPanel {
     private static final int VIEW_SIZE = 500;
     private static final int MOVE_STEP = 10;
-    private static final int PLAYER_X = 250;
-    private static final int PLAYER_Y = 250;
     private MapPanel[][] maps;
     private int currentMapX = 1, currentMapY = 1;
     private List<Player> players;
     private boolean[] keysPressed = new boolean[256]; // 키 상태 추적용 배열
     private Timer moveTimer;
+    private PrintWriter out;
 
-    public Map() {
-        setTitle("Tag Game");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        players = new ArrayList<>();
-
-        // 테스트를 위한 술래, 도둑 플레이어 추가
-        players.add(new Player(VIEW_SIZE / 2, VIEW_SIZE / 2, "술래", "/tagger.png"));
-        players.add(new Player(VIEW_SIZE / 2 + 50, VIEW_SIZE / 2 + 50, "도둑", "/normal.png"));
-
-        maps = new MapPanel[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                maps[i][j] = new MapPanel(i, j, players);
-            }
-        }
-        setLayout(new BorderLayout());
-        add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
-
-        /* 맵 크기와 화면 크기가 같도록 설정 */
+    public Map(PrintWriter out, List<Player> players) {
+        this.out = out;
+        this.players = players;
         setPreferredSize(new Dimension(VIEW_SIZE, VIEW_SIZE));
-        pack();
-        Insets insets = getInsets();
-        setSize(VIEW_SIZE + insets.left + insets.right, VIEW_SIZE + insets.top + insets.bottom);
+        setFocusable(true);
+        initializeMapPanels();
 
         /* 방향키를 눌렀을 때 이동에 지연어 없도록 하기위함 */
         addKeyListener(new KeyAdapter() {
@@ -56,9 +38,18 @@ public class Map extends JFrame {
         moveTimer = new Timer(50, e -> checkMovement());
         moveTimer.start();
 
-        setFocusable(true);
         requestFocusInWindow();
-        setVisible(true);
+    }
+
+    private void initializeMapPanels() {
+        maps = new MapPanel[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                maps[i][j] = new MapPanel(i, j, players);
+            }
+        }
+        setLayout(new BorderLayout());
+        add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
     }
 
     private void checkMovement() {
@@ -107,6 +98,7 @@ public class Map extends JFrame {
         currentMapY = newY;
         for (Player player : players) {
             player.move(VIEW_SIZE / 2 - player.getX(), VIEW_SIZE / 2 - player.getY());
+            player.setRoomNumber(newY * 3 + newX + 1);
         }
         add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
         revalidate();
@@ -117,6 +109,6 @@ public class Map extends JFrame {
 
     private void updateLocationLabel() {
         Player player = players.get(0); // 현재는 첫 번째 플레이어만 출력
-        System.out.println("현재 맵: (" + currentMapX + ", " + currentMapY + ") | 플레이어 위치: (" + player.getX() + ", " + player.getY() + ")");
+        System.out.println("현재 맵: (" + currentMapX + ", " + currentMapY + ") | 플레이어 위치: (" + player.getX() + ", " + player.getY() + ") | Room Number: " + player.getRoomNumber());
     }
 }
