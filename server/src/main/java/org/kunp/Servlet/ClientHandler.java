@@ -1,6 +1,9 @@
 package org.kunp.Servlet;
 
 import java.io.*;
+import org.kunp.Main;
+import org.kunp.Servlet.message.Message;
+import org.kunp.Servlet.session.Session;
 
 /**
  * Handles individual client requests in a separate thread.
@@ -10,7 +13,7 @@ import java.io.*;
  */
 public class ClientHandler implements Runnable {
 
-  private final String sessionId;
+  private final Session session;
   private final BufferedInputStream inputStream;
   private final BufferedOutputStream outputStream;
   private final SocketDisconnectCallback callback;
@@ -20,12 +23,11 @@ public class ClientHandler implements Runnable {
    *
    * @param ios the input stream from the client
    * @param oos the output stream to the client
-   * @param sessionId the session ID for the client
    * @param callback the callback to notify when the client disconnects
    */
   public ClientHandler(
-      InputStream ios, OutputStream oos, String sessionId, SocketDisconnectCallback callback) {
-    this.sessionId = sessionId;
+      InputStream ios, OutputStream oos, Session session, SocketDisconnectCallback callback) {
+    this.session = session;
     this.inputStream = new BufferedInputStream(ios);
     this.outputStream = new BufferedOutputStream(oos);
     this.callback = callback;
@@ -39,7 +41,7 @@ public class ClientHandler implements Runnable {
    */
   @Override
   public void run() {
-    System.out.println("Session ID: " + this.sessionId);
+    System.out.println("Session ID: " + this.session.getSessionId());
     try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
       processClientRequests(br);
     } catch (IOException e) {
@@ -49,11 +51,15 @@ public class ClientHandler implements Runnable {
     }
   }
 
+  /***
+   * Main 이라고 생각하면됩니다. Message가 들어오면 어떻게 처리할지 고민해봐요
+   */
   private void processClientRequests(BufferedReader br) throws IOException {
     String line;
     while ((line = br.readLine()) != null) {
       System.out.println("Received: " + line);
-      writeToOutputStream(line);
+      Message message = Message.parse(line);
+      Main.getGameContext().broadcast(message);
     }
   }
 
@@ -67,7 +73,7 @@ public class ClientHandler implements Runnable {
       inputStream.close();
       outputStream.close();
       if (callback != null) {
-        callback.onDisconnect(sessionId);
+        callback.onDisconnect(session.getSessionId());
       }
     } catch (IOException e) {
       System.err.println("Error closing streams: " + e.getMessage());

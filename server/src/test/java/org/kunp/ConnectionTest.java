@@ -5,7 +5,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
@@ -41,25 +44,13 @@ class ConnectionTest {
 
   @Test
   @DisplayName("Accept connections from multiple Clients")
-  void testAcceptConnections() throws InterruptedException {
-    Runnable client =
-        () -> {
-          try {
-            Socket socket = new Socket(ServerConstant.SERVER_HOST, ServerConstant.SERVER_PORT);
-            synchronized (this) {
-              wait();
-            }
-            System.out.println("Client Disconnected");
-          } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          } catch (InterruptedException e) {
-            System.out.println("Client Interrupted");
-          }
-        };
+  void testAcceptConnections() throws InterruptedException, IOException {
+    Socket socket = new Socket("localhost", 8080);
+
 
     ExecutorService executorService = Executors.newFixedThreadPool(10);
+    Runnable client
+        = null;
     for (int i = 0; i < 10; i++) {
       executorService.execute(client);
     }

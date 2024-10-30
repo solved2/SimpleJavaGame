@@ -2,14 +2,19 @@ package org.kunp;
 
 import static org.kunp.ServerConstant.*;
 
+import java.io.OutputStream;
 import java.net.ServerSocket;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.kunp.Servlet.*;
 import org.kunp.Servlet.session.*;
 
 public class Main {
 
   public static final ThreadGroup threadGroup = new ThreadGroup("ActiveThreads");
+  private static final List<OutputStream> outputStreams = new CopyOnWriteArrayList<>();
+  private static final GameContext gc = new GameContext();
   private static ServerSocket serverSocket;
   private static SessionStorage sessionStorage;
   private static ISessionIdGenerator sessionIdGenerator;
@@ -31,6 +36,8 @@ public class Main {
       closeServerSocket();
     }
   }
+
+  public static GameContext getGameContext() {return gc;}
 
   private static void initDependencies() {
     try {
