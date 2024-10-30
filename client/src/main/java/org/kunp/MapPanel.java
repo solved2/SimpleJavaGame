@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.Objects;
 
 public class MapPanel extends JPanel {
     private static final int MAP_SIZE = 500;
@@ -21,12 +22,12 @@ public class MapPanel extends JPanel {
         setPreferredSize(new Dimension(MAP_SIZE, MAP_SIZE));
         setFocusable(true);
         initializePortals();
-        portalImage = new ImageIcon(getClass().getResource("/portal.png")).getImage();
+        portalImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/portal.png"))).getImage();
 
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                Player player = players.get(0); // 현재는 첫 번째 플레이어만 제어
+                Player player = players.getFirst(); // 현재는 첫 번째 플레이어만 제어
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
                         player.move(0, -CELL_SIZE);

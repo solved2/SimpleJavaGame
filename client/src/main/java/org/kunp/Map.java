@@ -11,10 +11,10 @@ public class Map extends JPanel {
     private static final int MOVE_STEP = 10;
     private MapPanel[][] maps;
     private int currentMapX = 1, currentMapY = 1;
-    private List<Player> players;
-    private boolean[] keysPressed = new boolean[256]; // 키 상태 추적용 배열
-    private Timer moveTimer;
-    private PrintWriter out;
+    private final List<Player> players;
+    private final boolean[] keysPressed = new boolean[256]; // 키 상태 추적용 배열
+    private final Timer moveTimer;
+    private final PrintWriter out;
 
     public Map(PrintWriter out, List<Player> players) {
         this.out = out;
@@ -34,7 +34,8 @@ public class Map extends JPanel {
                 keysPressed[e.getKeyCode()] = false; // 키가 떼어졌음을 저장
             }
         });
-        // Timer 설정: 50ms마다 유저의 키 상태를 체크
+
+        // Timer 설정: 50ms 마다 유저의 키 상태를 체크
         moveTimer = new Timer(50, e -> checkMovement());
         moveTimer.start();
 
@@ -60,7 +61,7 @@ public class Map extends JPanel {
     }
 
     private void movePlayer(int keyCode) {
-        Player player = players.get(0);
+        Player player = players.getFirst();
         int newX = player.getX(), newY = player.getY();
         switch (keyCode) {
             case KeyEvent.VK_UP:
@@ -76,7 +77,9 @@ public class Map extends JPanel {
                 newX = Math.min(player.getX() + MOVE_STEP, VIEW_SIZE - player.getImageSizeX());
                 break;
         }
-        int portal = -1;
+
+        //portal 이동 감지 후 서버에게 room number 변경해서 보냄
+        int portal;
         if ((portal = maps[currentMapX][currentMapY].isPortal(newX, newY)) != -1) {
             moveMap(newX, newY, portal);
         } else {
@@ -108,7 +111,7 @@ public class Map extends JPanel {
     }
 
     private void updateLocationLabel() {
-        Player player = players.get(0); // 현재는 첫 번째 플레이어만 출력
+        Player player = players.getFirst(); // 현재는 첫 번째 플레이어만 출력
         System.out.println("현재 맵: (" + currentMapX + ", " + currentMapY + ") | 플레이어 위치: (" + player.getX() + ", " + player.getY() + ") | Room Number: " + player.getRoomNumber());
     }
 }

@@ -3,6 +3,7 @@ package org.kunp;
 import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
+import java.util.Objects;
 
 public class Player {
     private int x, y;
@@ -19,7 +20,7 @@ public class Player {
         this.x = startX;
         this.y = startY;
         this.role = role;
-        this.image = new ImageIcon(getClass().getResource(imagePath)).getImage();
+        this.image = new ImageIcon(Objects.requireNonNull(getClass().getResource(imagePath))).getImage();
         this.out = out;
         this.roomNumber = 5; // 초기 roomNumber 설정 (중앙 맵)
     }
