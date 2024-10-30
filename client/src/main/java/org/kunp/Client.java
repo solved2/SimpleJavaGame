@@ -26,9 +26,10 @@ public class Client {
         players.add(new Player(2, 300, 300, "도둑", "/normal.png", out));
 
         JFrame frame = new JFrame("Game");
-        frame.setSize(500, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new Map(out, players)); // Map 객체를 추가
+        Map map = new Map(out, players);
+        frame.add(map);
+        frame.pack(); // JPanel 크기에 맞게 JFrame 크기 조정
         frame.setVisible(true);
     }
 
@@ -36,3 +37,4 @@ public class Client {
         new Client();
     }
 }
+
