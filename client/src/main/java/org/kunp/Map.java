@@ -4,21 +4,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.PrintWriter;
-import java.util.List;
 
 public class Map extends JPanel {
     private static final int VIEW_SIZE = 500;
     private static final int MOVE_STEP = 10;
     private MapPanel[][] maps;
     private int currentMapX = 1, currentMapY = 1;
-    private final List<Player> players;
+    private final Player player;
     private final boolean[] keysPressed = new boolean[256]; // 키 상태 추적용 배열
     private final Timer moveTimer;
     private final PrintWriter out;
+    private final String sessionId;
 
-    public Map(PrintWriter out, List<Player> players) {
+    public Map(PrintWriter out, Player player, String sessionId) {
         this.out = out;
-        this.players = players;
+        this.player = player;
+        this.sessionId = sessionId;
         setPreferredSize(new Dimension(VIEW_SIZE, VIEW_SIZE));
         setFocusable(true);
         initializeMapPanels();
@@ -46,7 +47,7 @@ public class Map extends JPanel {
         maps = new MapPanel[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                maps[i][j] = new MapPanel(i, j, players);
+                maps[i][j] = new MapPanel(i, j, player);
             }
         }
         setLayout(new BorderLayout());
@@ -61,7 +62,6 @@ public class Map extends JPanel {
     }
 
     private void movePlayer(int keyCode) {
-        Player player = players.getFirst();
         int newX = player.getX(), newY = player.getY();
         switch (keyCode) {
             case KeyEvent.VK_UP:
@@ -99,10 +99,8 @@ public class Map extends JPanel {
         remove(maps[currentMapX][currentMapY]);
         currentMapX = newX;
         currentMapY = newY;
-        for (Player player : players) {
-            player.move(VIEW_SIZE / 2 - player.getX(), VIEW_SIZE / 2 - player.getY());
-            player.setRoomNumber(newY * 3 + newX + 1);
-        }
+        player.move(VIEW_SIZE / 2 - player.getX(), VIEW_SIZE / 2 - player.getY());
+        player.setRoomNumber(newY * 3 + newX + 1);
         add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
         revalidate();
         repaint();
@@ -111,7 +109,6 @@ public class Map extends JPanel {
     }
 
     private void updateLocationLabel() {
-        Player player = players.getFirst(); // 현재는 첫 번째 플레이어만 출력
         System.out.println("현재 맵: (" + currentMapX + ", " + currentMapY + ") | 플레이어 위치: (" + player.getX() + ", " + player.getY() + ") | Room Number: " + player.getRoomNumber());
     }
 }

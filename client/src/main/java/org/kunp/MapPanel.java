@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.List;
 import java.util.Objects;
 
 public class MapPanel extends JPanel {
@@ -13,12 +12,12 @@ public class MapPanel extends JPanel {
     private int mapX, mapY;
     private Rectangle[] portals;
     private Image portalImage;
-    private List<Player> players;
+    private Player player;
 
-    public MapPanel(int mapX, int mapY, List<Player> players) {
+    public MapPanel(int mapX, int mapY, Player player) {
         this.mapX = mapX;
         this.mapY = mapY;
-        this.players = players;
+        this.player = player;
         setPreferredSize(new Dimension(MAP_SIZE, MAP_SIZE));
         setFocusable(true);
         initializePortals();
@@ -27,7 +26,6 @@ public class MapPanel extends JPanel {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                Player player = players.getFirst(); // 현재는 첫 번째 플레이어만 제어
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_UP:
                         player.move(0, -CELL_SIZE);
@@ -66,7 +64,7 @@ public class MapPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         drawMap(g);
-        drawPlayers(g);
+        drawPlayer(g);
     }
 
     private void drawMap(Graphics g) {
@@ -84,10 +82,8 @@ public class MapPanel extends JPanel {
         }
     }
 
-    private void drawPlayers(Graphics g) {
-        for (Player player : players) {
-            player.draw(g);
-        }
+    private void drawPlayer(Graphics g) {
+        player.draw(g);
     }
 
     public int isPortal(int x, int y) {
