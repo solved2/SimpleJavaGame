@@ -14,7 +14,6 @@ public class Main {
 
   public static final ThreadGroup threadGroup = new ThreadGroup("ActiveThreads");
   private static final List<OutputStream> outputStreams = new CopyOnWriteArrayList<>();
-  private static final GameContext gc = new GameContext();
   private static ServerSocket serverSocket;
   private static SessionStorage sessionStorage;
   private static ISessionIdGenerator sessionIdGenerator;
@@ -36,8 +35,6 @@ public class Main {
       closeServerSocket();
     }
   }
-
-  public static GameContext getGameContext() {return gc;}
 
   private static void initDependencies() {
     try {

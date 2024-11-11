@@ -4,17 +4,19 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
   private final int type; // 1. 움직임, 2. 상호작용
-  private final int id;
+  private final String id;
   private final int x;
   private int y;
   private int roomNumber;
+  private int gameId;
 
-  public Message(int type, int id, int x, int y, int roomNumber) {
+  public Message(int type, String id, int x, int y, int roomNumber, int gameId) {
     this.type = type;
     this.id = id;
     this.x = x;
     this.y = y;
     this.roomNumber = roomNumber;
+    this.gameId = gameId;
   }
 
   /***
@@ -26,34 +28,39 @@ public class Message implements Serializable {
     String[] tokens = message.split("\\|");
     return new Message(
         Integer.parseInt(tokens[0]),
-        Integer.parseInt(tokens[1]),
+        tokens[1],
         Integer.parseInt(tokens[2]),
         Integer.parseInt(tokens[3]),
-        Integer.parseInt(tokens[4]));
+        Integer.parseInt(tokens[4]),
+        Integer.parseInt(tokens[5]));
   }
 
   public int getType() {
     return type;
   }
 
-  public int getY() {
-    return y;
+  public String getId() {
+    return id;
   }
 
-  public void setY(int y) {
-    this.y = y;
+  public int getX() {
+    return x;
+  }
+
+  public int getY() {
+    return y;
   }
 
   public int getRoomNumber() {
     return roomNumber;
   }
 
-  public void setRoomNumber(int roomNumber) {
-    this.roomNumber = roomNumber;
+  public int getGameId() {
+    return gameId;
   }
 
   @Override
   public String toString() {
-    return String.format("%d|%d|%d|%d|%d", type, id, x, y, roomNumber);
+    return String.format("%d|%s|%d|%d|%d|%d", type, id, x, y, roomNumber, gameId);
   }
 }

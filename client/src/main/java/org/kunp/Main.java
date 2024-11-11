@@ -5,8 +5,7 @@ public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                String TempSessionId = args[0];
-                new Client(TempSessionId);
+                new Client();
             } catch (Exception e) {
                 e.printStackTrace();
             }

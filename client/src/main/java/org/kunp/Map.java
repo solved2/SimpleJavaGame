@@ -160,7 +160,7 @@ public class Map extends JPanel {
                     int y = Integer.parseInt(parts[3]);
                     int roomNumber = Integer.parseInt(parts[4]);
                     synchronized (locations){
-                        if(locations.containsKey(sessionId) == false) locations.put(sessionId, new Location(roomNumber, x, y));
+                        if(!locations.containsKey(sessionId)) locations.put(sessionId, new Location(roomNumber, x, y));
                         else locations.get(sessionId).setLocation(roomNumber, x, y);
                     }
                     repaint();
