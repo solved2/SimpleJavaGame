@@ -57,7 +57,7 @@ public class Player {
     }
 
     private void sendLocation() {
-        String message = String.format("1|%s|%d|%d|%d", sessionId, x, y, roomNumber);
+        String message = String.format("1|%s|%d|%d|%d|1", sessionId, x, y, roomNumber);
         out.println(message);
         out.flush();
     }

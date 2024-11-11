@@ -1,7 +1,9 @@
 package org.kunp.Servlet;
 
 import java.io.*;
-import org.kunp.Main;
+import java.nio.charset.StandardCharsets;
+
+import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
@@ -43,6 +45,8 @@ public class ClientHandler implements Runnable {
   public void run() {
     System.out.println("Session ID: " + this.session.getSessionId());
     try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+      outputStream.write((session.getSessionId() + "\n").getBytes(StandardCharsets.UTF_8));
+      outputStream.flush();
       processClientRequests(br);
     } catch (IOException e) {
       System.err.println("Client disconnected or an error occurred: " + e.getMessage());
@@ -58,8 +62,9 @@ public class ClientHandler implements Runnable {
     String line;
     while ((line = br.readLine()) != null) {
       System.out.println("Received: " + line);
-      Message message = Message.parse(line);
-      Main.getGameContext().broadcast(message);
+      // 임시로 방 생성
+
+      RequestHandler.getInstance().handleRequest(session, line);
     }
   }
 

@@ -27,13 +27,10 @@ public class NativeConnectionConfigurer extends ConnectionConfigurer {
     attr.put("ops", outputStream);
     createdSession.setAttributes(attr);
 
-    Main.getGameContext().enter(createdSession);
-    Runnable clientHandler =
-        new ClientHandler(
-            inputStream,
-            outputStream,
-            createdSession,
-            sessionId -> sessionManager.removeSession(createdSession.getSessionId()));
-    return clientHandler;
+    return new ClientHandler(
+        inputStream,
+        outputStream,
+        createdSession,
+        sessionId -> sessionManager.removeSession(createdSession.getSessionId()));
   }
 }
