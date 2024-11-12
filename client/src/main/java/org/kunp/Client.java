@@ -1,6 +1,7 @@
 package org.kunp;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 import java.net.Socket;
 
@@ -24,6 +25,22 @@ public class Client {
             e.printStackTrace();
         }
 
+        JFrame frame = new JFrame("Tag Game - 대기실");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(600, 500);  // 화면 크기를 키움
+
+        // 대기실 목록 패널
+        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId);
+        frame.add(waitingRoomListPanel, BorderLayout.CENTER);
+
+        // 대기실 생성 패널
+        WaitingRoomCreationPanel waitingRoomCreationPanel = new WaitingRoomCreationPanel(in, out, sessionId);
+        frame.add(waitingRoomCreationPanel, BorderLayout.SOUTH);
+
+        frame.setVisible(true);
+
+        /*
         // 플레이어 생성 (임시 사용자)
         player = new Player(250, 250, "술래", "/tagger.png", out, sessionId);
 
@@ -33,6 +50,7 @@ public class Client {
         frame.add(map);
         frame.pack();
         frame.setVisible(true);
+         */
     }
 }
 
