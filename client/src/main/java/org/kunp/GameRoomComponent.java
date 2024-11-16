@@ -7,14 +7,16 @@ import java.io.PrintWriter;
 import java.util.List;
 
 public class GameRoomComponent extends JPanel {
+    final private String sessionId;
     private List<String> sessionIds;
     private BufferedReader in;
     private PrintWriter out;
 
-    public GameRoomComponent(List<String> sessionIds, BufferedReader in, PrintWriter out) {
+    public GameRoomComponent(List<String> sessionIds, String roomName, BufferedReader in, PrintWriter out, String sessionId) {
         this.sessionIds = sessionIds;
         this.in = in;
         this.out = out;
+        this.sessionId = sessionId;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -29,7 +31,7 @@ public class GameRoomComponent extends JPanel {
         add(listPanel, BorderLayout.CENTER);
 
         // 컨트롤 패널 추가
-        GameRoomControlPanel controlPanel = new GameRoomControlPanel(out);
+        GameRoomControlPanel controlPanel = new GameRoomControlPanel(roomName, out, sessionId);
         add(controlPanel, BorderLayout.SOUTH);
     }
 }

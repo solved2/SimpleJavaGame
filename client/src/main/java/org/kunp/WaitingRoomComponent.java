@@ -50,7 +50,7 @@ public class WaitingRoomComponent extends JPanel {
 
                 // GameRoomComponent로 전환
                 parentPanel.removeAll();
-                parentPanel.add(new GameRoomComponent(sessionIds, in, out));
+                parentPanel.add(new GameRoomComponent(sessionIds, roomName, in, out, sessionId));
                 parentPanel.revalidate();
                 parentPanel.repaint();
             }
