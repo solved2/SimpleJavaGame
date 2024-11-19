@@ -3,8 +3,6 @@ package org.kunp.Servlet;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-import org.kunp.Servlet.game.GameContextRegistry;
-import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
 /**
@@ -63,7 +61,6 @@ public class ClientHandler implements Runnable {
     while ((line = br.readLine()) != null) {
       System.out.println("Received: " + line);
       // 임시로 방 생성
-
       RequestHandler.getInstance().handleRequest(session, line);
     }
   }

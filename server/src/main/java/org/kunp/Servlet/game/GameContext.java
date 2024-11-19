@@ -36,11 +36,9 @@ public class GameContext {
   public void updateAndBroadCast() {
     for (OutputStream oos : participants.values()) {
       try {
-        System.out.println(participants.size());
         for(Map.Entry<String, int[]> entry : positions.entrySet()) {
           oos.write(createMessage(1, entry.getValue(), entry.getKey(), this.gameId).getBytes());
           oos.flush();
-          System.out.println("send message");
         }
       } catch (SocketException e) {
         //participants.remove(oos);
@@ -66,6 +64,26 @@ public class GameContext {
   private String createMessage(int type, int[] position, String id, int gameId) {
     return type + "|" + id + "|" + position[0] + "|" + position[1] + "|" + position[2] + "|" + gameId+
     "\n";
+  }
+
+  public void updateInteraction(String id, int roomNumber) throws IOException {
+    //TODO : is chaser
+    int[] pos = positions.get(id);
+    //check interaction
+    for(Map.Entry<String, int[]> entry : positions.entrySet()) {
+      if(entry.getKey().equals(id)) continue;
+      int[] targetPos = entry.getValue();
+      System.out.println("pos : " + pos[0] + " " + pos[1]);
+      if(isAvailable(pos, targetPos)) {
+        //TODO : send message
+        System.out.println("dead");;
+        participants.get(entry.getKey()).write(createMessage(2, targetPos, entry.getKey(), this.gameId).getBytes());
+      }
+    }
+  }
+
+  private boolean isAvailable(int[] pos1, int[] pos2) {
+    return pos1[0] - pos2[0] < 10 && pos1[1] - pos2[1] < 10;
   }
 }
 
