@@ -3,6 +3,7 @@ package org.kunp.Servlet.game;
 import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -58,5 +59,10 @@ public class GameContextRegistry {
 
   private void registerGameContext(int roomNumber, GameContext gc) {
     gameContexts.put(roomNumber, gc);
+  }
+
+  public void interact(Message message) throws IOException {
+    GameContext gc = gameContexts.get(message.getGameId());
+    gc.updateInteraction(message.getId(), message.getRoomNumber());
   }
 }

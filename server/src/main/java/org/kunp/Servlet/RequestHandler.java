@@ -4,6 +4,8 @@ import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
+import java.io.IOException;
+
 public class RequestHandler {
 
   private static RequestHandler requestHandler;
@@ -18,12 +20,15 @@ public class RequestHandler {
     return requestHandler;
   }
 
-  public void handleRequest(Session session, String originalMessage) {
+  public void handleRequest(Session session, String originalMessage) throws IOException {
     Message parsedMessage = Message.parse(originalMessage);
     createIfRoomNotExist(session, parsedMessage);
     GameContextRegistry.getInstance().subscribe(session, parsedMessage.getGameId());
     if (parsedMessage.getType() == 1) {
       GameContextRegistry.getInstance().update(parsedMessage);
+    } else if (parsedMessage.getType() == 2) {
+      System.out.println("interaction");
+      GameContextRegistry.getInstance().interact(parsedMessage);
     }
   }
 
