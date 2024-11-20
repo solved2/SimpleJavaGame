@@ -30,7 +30,13 @@ public class InnerWaitingRoomListPanel extends JPanel {
         for (String id : sessionIds) {
             JPanel userPanel = new JPanel();
             userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            userPanel.add(new JLabel(id));
+            userPanel.setLayout(new GridBagLayout()); // 중앙 정렬을 위해 GridBagLayout 사용
+
+            JLabel label = new JLabel(id);
+            label.setFont(new Font("Arial", Font.BOLD, 16)); // 글꼴 설정 (크기 및 스타일)
+            label.setHorizontalAlignment(SwingConstants.CENTER); // 중앙 정렬
+
+            userPanel.add(label); // 패널에 라벨 추가
             gridPanel.add(userPanel);
         }
 
@@ -38,4 +44,5 @@ public class InnerWaitingRoomListPanel extends JPanel {
         gridPanel.repaint();
     }
 }
+
 
