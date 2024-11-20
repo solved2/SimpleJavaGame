@@ -4,10 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class GameRoomListPanel extends JPanel {
+public class InnerWaitingRoomListPanel extends JPanel {
     private JPanel gridPanel;
 
-    public GameRoomListPanel(List<String> sessionIds) {
+    public InnerWaitingRoomListPanel(List<String> sessionIds) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         setPreferredSize(new Dimension(350, 150));

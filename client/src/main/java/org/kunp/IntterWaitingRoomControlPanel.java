@@ -4,8 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.PrintWriter;
 
-public class GameRoomControlPanel extends JPanel {
-    public GameRoomControlPanel(String roomName, PrintWriter out, String sessionId) {
+public class IntterWaitingRoomControlPanel extends JPanel {
+    public IntterWaitingRoomControlPanel(String roomName, PrintWriter out, String sessionId) {
         setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         setPreferredSize(new Dimension(350, 50));
 
