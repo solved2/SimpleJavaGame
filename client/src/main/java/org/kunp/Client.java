@@ -31,13 +31,15 @@ public class Client {
         frame.setSize(600, 500);  // 화면 크기를 키움
 
         // 대기실 목록 패널
-        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId);
-        frame.add(waitingRoomListPanel, BorderLayout.CENTER);
+        JPanel parentPanel = new JPanel(new BorderLayout());
+        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId, parentPanel);
+        parentPanel.add(waitingRoomListPanel, BorderLayout.CENTER);
 
         // 대기실 생성 패널
         WaitingRoomCreationPanel waitingRoomCreationPanel = new WaitingRoomCreationPanel(in, out, sessionId);
-        frame.add(waitingRoomCreationPanel, BorderLayout.SOUTH);
+        parentPanel.add(waitingRoomCreationPanel, BorderLayout.SOUTH);
 
+        frame.add(parentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
 
         /*

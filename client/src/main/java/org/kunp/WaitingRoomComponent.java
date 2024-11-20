@@ -6,17 +6,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.util.List;
 
 // 대기실 컴포넌트
 public class WaitingRoomComponent extends JPanel {
     final private BufferedReader in;
     final private PrintWriter out;
     final private String sessionId;
+    private JPanel parentPanel;
+    private List<String> sessionIds;
 
-    public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName) {
+    public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName, JPanel parentPanel, List<String> sessionIds) {
         this.in = in;
         this.out = out;
         this.sessionId = sessionId;
+        this.parentPanel = parentPanel;
+        this.sessionIds = sessionIds;
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -35,13 +40,19 @@ public class WaitingRoomComponent extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // 입장 버튼 클릭 시 메시지 전송
+        // 입장 버튼 클릭 시 GameRoomComponent로 전환
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String message = String.format("0|%s|%d|%d|%d|1", sessionId, 0, 0, 0);
                 out.println(message);
                 out.flush();
+
+                // GameRoomComponent로 전환
+                parentPanel.removeAll();
+                parentPanel.add(new InnerWaitingRoomComponent(sessionIds, roomName, in, out, sessionId));
+                parentPanel.revalidate();
+                parentPanel.repaint();
             }
         });
     }
