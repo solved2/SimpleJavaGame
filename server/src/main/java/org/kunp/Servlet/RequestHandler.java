@@ -1,6 +1,10 @@
 package org.kunp.Servlet;
 
 import org.kunp.Servlet.game.GameContextRegistry;
+import org.kunp.Servlet.game.GameRequestHandler;
+import org.kunp.Servlet.menu.MenuRequestHandler;
+import org.kunp.Servlet.message.GameMessage;
+import org.kunp.Servlet.message.MenuMessage;
 import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
@@ -21,20 +25,26 @@ public class RequestHandler {
   }
 
   public void handleRequest(Session session, String originalMessage) throws IOException {
-    Message parsedMessage = Message.parse(originalMessage);
-    createIfRoomNotExist(session, parsedMessage);
-    GameContextRegistry.getInstance().subscribe(session, parsedMessage.getGameId());
-    if (parsedMessage.getType() == 1) {
-      GameContextRegistry.getInstance().update(parsedMessage);
-    } else if (parsedMessage.getType() == 2) {
-      System.out.println("interaction");
-      GameContextRegistry.getInstance().interact(parsedMessage);
+    Message parsedMessage = parseMessage(originalMessage);
+    if (parsedMessage.isMenuMessage()) {
+      MenuRequestHandler.getInstance().handleMenuRequest(session, (MenuMessage) parsedMessage);
+    } else {
+      GameRequestHandler.getInstance().handleGameRequest(session, (GameMessage) parsedMessage);
     }
   }
 
-  private void createIfRoomNotExist(Session session, Message message) {
-    if(!GameContextRegistry.getInstance().hasGame(message.getGameId())) {
-      GameContextRegistry.getInstance().createGameContext("roomName", session.getSessionId());
+  private void handleMenuRequest(Session session, MenuMessage message) {
+    System.out.println("menu");
+
+  }
+
+  private Message parseMessage(String originalMessage) {
+    String[] messageTokens = originalMessage.split("\\|");
+    // 100번대는 메뉴 메세지, 200번대는 게임 메세지
+    if(Integer.parseInt(messageTokens[0]) <200) {
+      return MenuMessage.of(messageTokens);
+    } else {
+      return GameMessage.of(messageTokens);
     }
   }
 }

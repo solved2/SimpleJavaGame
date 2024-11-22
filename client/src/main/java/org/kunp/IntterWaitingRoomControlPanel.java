@@ -22,7 +22,7 @@ public class IntterWaitingRoomControlPanel extends JPanel {
         // 게임 시작 버튼 클릭 시 메시지 전송
         startGameButton.addActionListener(e -> {
             //todo : 서버와 입장 메세지 타입 조정 필요
-            String message = String.format("0|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+            String message = String.format("100|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
             out.println(message);
             out.flush();
         });
@@ -30,7 +30,7 @@ public class IntterWaitingRoomControlPanel extends JPanel {
         // 나가기 버튼 클릭 시 메시지 전송
         exitButton.addActionListener(e -> {
             //todo : 서버와 퇴장 메세지 타입 조정 필요
-            String message = String.format("0|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+            String message = String.format("103|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
             out.println(message);
             out.flush();
         });
