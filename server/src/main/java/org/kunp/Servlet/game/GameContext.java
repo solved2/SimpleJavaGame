@@ -75,8 +75,6 @@ public class GameContext {
       int[] targetPos = entry.getValue();
       System.out.println("pos : " + pos[0] + " " + pos[1]);
       if(isAvailable(pos, targetPos)) {
-        //TODO : send message
-        System.out.println("dead");;
         participants.get(entry.getKey()).write(createMessage(2, targetPos, entry.getKey(), this.gameId).getBytes());
       }
     }

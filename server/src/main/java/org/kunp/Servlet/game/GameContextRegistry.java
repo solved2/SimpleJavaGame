@@ -1,5 +1,6 @@
 package org.kunp.Servlet.game;
 
+import org.kunp.Servlet.message.GameMessage;
 import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
@@ -39,7 +40,7 @@ public class GameContextRegistry {
     return gameContexts.containsKey(gameId);
   }
 
-  public void update(Message message) {
+  public void update(GameMessage message) {
     GameContext gc = gameContexts.get(message.getGameId());
     gc.updateContext(message.getId(), message.getX(), message.getY(), message.getRoomNumber());
   }
@@ -61,7 +62,7 @@ public class GameContextRegistry {
     gameContexts.put(roomNumber, gc);
   }
 
-  public void interact(Message message) throws IOException {
+  public void interact(GameMessage message) throws IOException {
     GameContext gc = gameContexts.get(message.getGameId());
     gc.updateInteraction(message.getId(), message.getRoomNumber());
   }

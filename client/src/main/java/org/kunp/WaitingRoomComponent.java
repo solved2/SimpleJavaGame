@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Set;
 
 // 대기실 컴포넌트
 public class WaitingRoomComponent extends JPanel {
@@ -14,9 +15,9 @@ public class WaitingRoomComponent extends JPanel {
     final private PrintWriter out;
     final private String sessionId;
     private JPanel parentPanel;
-    private List<String> sessionIds;
+    private Set<String> sessionIds;
 
-    public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName, JPanel parentPanel, List<String> sessionIds) {
+    public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName, JPanel parentPanel, Set<String> sessionIds) {
         this.in = in;
         this.out = out;
         this.sessionId = sessionId;
@@ -44,7 +45,7 @@ public class WaitingRoomComponent extends JPanel {
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String message = String.format("0|%s|%d|%d|%d|1", sessionId, 0, 0, 0);
+                String message = String.format("101|%s|%s|%d|%d|1", sessionId, "대기실 1", 0, 0);
                 out.println(message);
                 out.flush();
 

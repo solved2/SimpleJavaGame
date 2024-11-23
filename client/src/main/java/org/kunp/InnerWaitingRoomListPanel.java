@@ -3,11 +3,12 @@ package org.kunp;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
 
 public class InnerWaitingRoomListPanel extends JPanel {
     private JPanel gridPanel;
 
-    public InnerWaitingRoomListPanel(List<String> sessionIds) {
+    public InnerWaitingRoomListPanel(Set<String> sessionIds) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         setPreferredSize(new Dimension(350, 150));
@@ -19,7 +20,7 @@ public class InnerWaitingRoomListPanel extends JPanel {
         updateSessionList(sessionIds);
     }
 
-    public void updateSessionList(List<String> sessionIds) {
+    public void updateSessionList(Set<String> sessionIds) {
         gridPanel.removeAll(); // 기존 컴포넌트 제거
 
         // 짝수 인원만 추가

@@ -90,9 +90,8 @@ class WaitingRoomCreationPanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "제한 인원은 2명 이상 8명 이하의 짝수여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else {
                         // 대기실 생성
-                        String message = String.format("0|%s|%d|%d|%d|1", sessionId, 0, 0, 0);
+                        String message = String.format("102|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
                         out.println(message);
-                        out.flush();
                     }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "제한 시간과 제한 인원은 숫자여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
