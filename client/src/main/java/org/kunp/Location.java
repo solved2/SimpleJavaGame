@@ -7,11 +7,13 @@ public class Location{
         this.x = x;
         this.y = y;
     }
+
     public void setLocation(int roomNumber, int x, int y){
         this.roomNumber = roomNumber;
         this.x = x;
         this.y = y;
     }
+
     public int getRoomNumber(){
         return roomNumber;
     }
