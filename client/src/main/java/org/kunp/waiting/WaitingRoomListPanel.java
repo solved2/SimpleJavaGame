@@ -1,4 +1,6 @@
-package org.kunp;
+package org.kunp.waiting;
+
+import org.kunp.server.ServerProtocol;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -6,13 +8,16 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
 public class WaitingRoomListPanel extends JPanel {
+    private final ServerProtocol serverProtocol;
+
     public WaitingRoomListPanel(
-            BufferedReader in, PrintWriter out, String sessionId, JPanel parentPanel) {
+            JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
+
+        this.serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("대기실 목록"));
@@ -37,12 +42,9 @@ public class WaitingRoomListPanel extends JPanel {
         refreshButton.addActionListener(e -> {
             new Thread(() -> { // 새로운 스레드 생성
                 try {
-                    out.println("100|" + sessionId + "|null|0|0");
-                    out.flush();
-
-                    String message = in.readLine();
-                    System.out.println(message);
-                    String[] tokens = message.split("\\|");
+                    String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
+                    System.out.println(response);
+                    String[] tokens = response.split("\\|");
 
                     SwingUtilities.invokeLater(() -> { // UI 업데이트를 UI 스레드에서
                         rooms.clear();

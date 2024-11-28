@@ -1,24 +1,35 @@
-package org.kunp;
+package org.kunp.waiting;
+
+import org.kunp.inner.InnerWaitingRoomComponent;
+import org.kunp.server.ServerProtocol;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.net.Socket;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 // 대기실 생성 패널
-class WaitingRoomCreationPanel extends JPanel {
+public class WaitingRoomCreationPanel extends JPanel {
     private JTextField roomNameField;
     private JTextField timeLimitField;
     private JTextField playerLimitField;
 
+    private final ServerProtocol serverProtocol;
+
+    private final JPanel parentPanel;
     private final BufferedReader in;
     private final PrintWriter out;
     private final String sessionId;
 
-    public WaitingRoomCreationPanel(BufferedReader in, PrintWriter out, String sessionId) {
+    public WaitingRoomCreationPanel(JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
+        this.parentPanel = parentPanel;
         this.in = in;
         this.out = out;
         this.sessionId = sessionId;
+
+        this.serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(350, 150));
@@ -88,12 +99,40 @@ class WaitingRoomCreationPanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "제한 시간은 1 이상의 분 단위 정수여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else if (playerLimit < 2 || playerLimit > 8 || playerLimit % 2 != 0) {
                         JOptionPane.showMessageDialog(this, "제한 인원은 2명 이상 8명 이하의 짝수여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
-                    } else if (roomName.contains(",")){
+                    } else if (roomName.contains(",")) {
                         JOptionPane.showMessageDialog(this, "대기실 이름에 , 은 포함될 수 없습니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else {
-                        // 대기실 생성
-                        String message = String.format("102|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
-                        out.println(message);
+                        // 서버 응답을 기다리기 위한 스레드
+                        new Thread(() -> {
+                            try {
+                                String response = serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit); // 서버의 응답 읽기
+                                System.out.println(response);
+                                String[] tokens = response.split("\\|");
+
+                                // 대기실 생성 성공 여부 확인
+                                if ("102".equals(tokens[0])) { // 성공적으로 생성된 경우
+                                    String response2 = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
+                                    System.out.println(response2);
+                                    String[] tokens2 = response2.split("\\|");
+                                    Set<String> currentSessionIds = new HashSet<>(Arrays.asList(tokens2[1].split(",")));
+
+                                    SwingUtilities.invokeLater(() -> {
+                                        // 대기실 컴포넌트로 전환
+                                        parentPanel.removeAll();
+                                        parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
+                                        parentPanel.revalidate();
+                                        parentPanel.repaint();
+                                    });
+                                } else {
+                                    // 실패한 경우에 대한 처리 (예: 방 이름 중복 등)
+                                    SwingUtilities.invokeLater(() -> {
+                                        JOptionPane.showMessageDialog(this, "대기실 생성에 실패했습니다: " + tokens[1], "오류", JOptionPane.ERROR_MESSAGE);
+                                    });
+                                }
+                            } catch (IOException ex) {
+                                ex.printStackTrace(); // 예외 로그
+                            }
+                        }).start(); // 스레드 시작
                     }
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "제한 시간과 제한 인원은 숫자여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
@@ -102,5 +141,6 @@ class WaitingRoomCreationPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
             }
         });
+
     }
 }

@@ -1,4 +1,7 @@
-package org.kunp;
+package org.kunp.waiting;
+
+import org.kunp.inner.InnerWaitingRoomComponent;
+import org.kunp.server.ServerProtocol;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,12 +22,15 @@ public class WaitingRoomComponent extends JPanel {
     private JPanel parentPanel;
     private Set<String> sessionIds;
 
+    private final ServerProtocol serverProtocol;
     public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName, JPanel parentPanel, Set<String> sessionIds) {
         this.in = in;
         this.out = out;
         this.sessionId = sessionId;
         this.parentPanel = parentPanel;
         this.sessionIds = sessionIds;
+
+        this.serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -46,20 +52,15 @@ public class WaitingRoomComponent extends JPanel {
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
-                out.println(message);
-                out.flush();
-
                 // 서버에 현재 대기실 세션 ID 요청
                 new Thread(() -> {
                     try {
-                        String response = in.readLine(); // 서버로부터 응답 읽기
+                        String response = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
                         System.out.println(response);
                         String[] tokens = response.split("\\|");
                         Set<String> currentSessionIds = new HashSet<>(Arrays.asList(tokens[1].split(",")));
 
                         SwingUtilities.invokeLater(() -> {
-                            // GameRoomComponent로 전환
                             parentPanel.removeAll();
                             parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
                             parentPanel.revalidate();

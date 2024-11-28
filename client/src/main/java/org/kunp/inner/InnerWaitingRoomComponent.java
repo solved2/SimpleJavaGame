@@ -1,10 +1,9 @@
-package org.kunp;
+package org.kunp.inner;
 
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Set;
 import javax.swing.*;
 
@@ -43,8 +42,6 @@ public class InnerWaitingRoomComponent extends JPanel {
     InnerWaitingRoomControlPanel controlPanel =
         new InnerWaitingRoomControlPanel(parentPanel, roomName, in, out, sessionId);
     add(controlPanel, BorderLayout.SOUTH);
-
-
 
     Thread thread = new Thread(() -> {
       sessionIds.clear();

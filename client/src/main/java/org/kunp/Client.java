@@ -1,5 +1,8 @@
 package org.kunp;
 
+import org.kunp.waiting.WaitingRoomCreationPanel;
+import org.kunp.waiting.WaitingRoomListPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -12,7 +15,6 @@ public class Client {
     private PrintWriter out;
     private BufferedReader in;
     private String sessionId;
-    private Player player;
 
     public Client() {
         try {
@@ -32,11 +34,11 @@ public class Client {
 
         // 대기실 목록 패널
         JPanel parentPanel = new JPanel(new BorderLayout());
-        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId, parentPanel);
+        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(parentPanel, in, out, sessionId);
         parentPanel.add(waitingRoomListPanel, BorderLayout.CENTER);
 
         // 대기실 생성 패널
-        WaitingRoomCreationPanel waitingRoomCreationPanel = new WaitingRoomCreationPanel(in, out, sessionId);
+        WaitingRoomCreationPanel waitingRoomCreationPanel = new WaitingRoomCreationPanel(parentPanel, in, out, sessionId);
         parentPanel.add(waitingRoomCreationPanel, BorderLayout.SOUTH);
 
         frame.add(parentPanel, BorderLayout.CENTER);

@@ -1,6 +1,5 @@
-package org.kunp;
+package org.kunp.map;
 
-import java.awt.*;
 import java.io.PrintWriter;
 
 public class Player {
