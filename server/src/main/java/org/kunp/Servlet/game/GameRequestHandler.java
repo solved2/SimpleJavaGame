@@ -21,9 +21,10 @@ public class GameRequestHandler {
     public void handleGameRequest(Session session, GameMessage parsedMessage) throws IOException {
       createIfRoomNotExist(session, parsedMessage);
       GameContextRegistry.getInstance().subscribe(session, parsedMessage.getGameId());
-      if (parsedMessage.getType() == 1) {
+      System.out.println(parsedMessage.getType());
+      if (parsedMessage.getType() == 201) {
         GameContextRegistry.getInstance().update(parsedMessage);
-      } else if (parsedMessage.getType() == 2) {
+      } else if (parsedMessage.getType() == 202) {
         System.out.println("interaction");
         GameContextRegistry.getInstance().interact(parsedMessage);
       }
