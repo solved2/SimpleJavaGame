@@ -5,7 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,20 +44,34 @@ public class WaitingRoomComponent extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // 입장 버튼 클릭 시 GameRoomComponent로 전환
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String message = String.format("101|%s|%s|%d|%d|1", sessionId, "대기실 1", 0, 0);
+                String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
                 out.println(message);
                 out.flush();
 
-                // GameRoomComponent로 전환
-                parentPanel.removeAll();
-                parentPanel.add(new InnerWaitingRoomComponent(sessionIds, roomName, in, out, sessionId));
-                parentPanel.revalidate();
-                parentPanel.repaint();
+                // 서버에 현재 대기실 세션 ID 요청
+                new Thread(() -> {
+                    try {
+                        String response = in.readLine(); // 서버로부터 응답 읽기
+                        System.out.println(response);
+                        String[] tokens = response.split("\\|");
+                        Set<String> currentSessionIds = new HashSet<>(Arrays.asList(tokens[1].split(",")));
+
+                        SwingUtilities.invokeLater(() -> {
+                            // GameRoomComponent로 전환
+                            parentPanel.removeAll();
+                            parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
+                            parentPanel.revalidate();
+                            parentPanel.repaint();
+                        });
+                    } catch (IOException ex) {
+                        ex.printStackTrace(); // 예외 로그
+                    }
+                }).start(); // 스레드 시작
             }
         });
+
     }
 }

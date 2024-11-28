@@ -24,7 +24,7 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*
+
         JFrame frame = new JFrame("Tag Game - 대기실");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -41,17 +41,17 @@ public class Client {
 
         frame.add(parentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
-        */
-        // 플레이어 생성 (임시 사용자)
 
-        player = new Player(250, 250, "tagger", out, sessionId);
-
-        JFrame frame = new JFrame("Tag Game");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Map map = new Map(in, out, player, sessionId);
-        frame.add(map);
-        frame.pack();
-        frame.setVisible(true);
+//        // 플레이어 생성 (임시 사용자)
+//
+//        player = new Player(250, 250, "tagger", out, sessionId);
+//
+//        frame = new JFrame("Tag Game");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        Map map = new Map(in, out, player, sessionId);
+//        frame.add(map);
+//        frame.pack();
+//        frame.setVisible(true);
 
     }
 }
