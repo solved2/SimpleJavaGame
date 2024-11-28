@@ -1,4 +1,4 @@
-package org.kunp;
+package org.kunp.map;
 
 public class Location{
     int roomNumber, x, y;

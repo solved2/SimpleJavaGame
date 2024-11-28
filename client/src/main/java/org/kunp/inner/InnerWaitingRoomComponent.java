@@ -1,25 +1,26 @@
-package org.kunp;
+package org.kunp.inner;
 
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Set;
 import javax.swing.*;
 
 public class InnerWaitingRoomComponent extends JPanel {
+  private final JPanel parentPanel;
   private final String sessionId;
   private final Set<String> sessionIds;
   private final BufferedReader in;
-  private final PrintWriter out;
+  private final PrintWriter out;;
 
-  public InnerWaitingRoomComponent(
+  public InnerWaitingRoomComponent( JPanel parentPanel,
       Set<String> sessionIds,
       String roomName,
       BufferedReader in,
       PrintWriter out,
       String sessionId) {
+    this.parentPanel = parentPanel;
     this.sessionIds = sessionIds;
     this.in = in;
     this.out = out;
@@ -38,11 +39,9 @@ public class InnerWaitingRoomComponent extends JPanel {
     add(listPanel, BorderLayout.CENTER);
 
     // 컨트롤 패널 추가
-    IntterWaitingRoomControlPanel controlPanel =
-        new IntterWaitingRoomControlPanel(roomName, out, sessionId);
+    InnerWaitingRoomControlPanel controlPanel =
+        new InnerWaitingRoomControlPanel(parentPanel, roomName, in, out, sessionId);
     add(controlPanel, BorderLayout.SOUTH);
-
-
 
     Thread thread = new Thread(() -> {
       sessionIds.clear();

@@ -1,4 +1,4 @@
-package org.kunp;
+package org.kunp.map;
 
 import javax.swing.*;
 import java.awt.*;

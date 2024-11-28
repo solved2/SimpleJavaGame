@@ -1,8 +1,7 @@
-package org.kunp;
+package org.kunp.inner;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.util.Set;
 
 public class InnerWaitingRoomListPanel extends JPanel {
@@ -45,5 +44,3 @@ public class InnerWaitingRoomListPanel extends JPanel {
         gridPanel.repaint();
     }
 }
-
-
