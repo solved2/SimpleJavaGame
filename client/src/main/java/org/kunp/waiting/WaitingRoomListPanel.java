@@ -1,7 +1,5 @@
 package org.kunp.waiting;
 
-import org.kunp.server.ServerProtocol;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -14,9 +12,7 @@ import java.util.List;
 // 대기실 목록 리스트 패널
 public class WaitingRoomListPanel extends JPanel {
     public WaitingRoomListPanel(
-            BufferedReader in, PrintWriter out, String sessionId, JPanel parentPanel) {
-
-        ServerProtocol serverProtocol = new ServerProtocol(in, out);
+            JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
 
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("대기실 목록"));
@@ -42,7 +38,10 @@ public class WaitingRoomListPanel extends JPanel {
         refreshButton.addActionListener(e -> {
             new Thread(() -> {
                 try {
-                    String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
+                    String message = String.format("100|%s|%s|%d|%d|1", sessionId, null, 0, 0);
+                    out.println(message);
+                    out.flush();
+                    String response = in.readLine();
                     String[] tokens = response.split("\\|");
 
                     SwingUtilities.invokeLater(() -> {

@@ -1,21 +1,17 @@
 package org.kunp.waiting;
 
 import org.kunp.inner.InnerWaitingRoomComponent;
-import org.kunp.server.ServerProtocol;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
 
 // 대기실 컴포넌트
 public class WaitingRoomComponent extends JPanel {
     public WaitingRoomComponent(BufferedReader in, PrintWriter out, String sessionId, String roomName, JPanel parentPanel) {
-        ServerProtocol serverProtocol = new ServerProtocol(in, out);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         setPreferredSize(new Dimension(350, 70));
@@ -33,7 +29,6 @@ public class WaitingRoomComponent extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // 입장 버튼 클릭 시 GameRoomComponent로 전환
         enterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -43,7 +38,7 @@ public class WaitingRoomComponent extends JPanel {
 
                 // GameRoomComponent로 전환
                 parentPanel.removeAll();
-                parentPanel.add(new InnerWaitingRoomComponent(roomName, in, out, sessionId));
+                parentPanel.add(new InnerWaitingRoomComponent(parentPanel, roomName, in, out, sessionId));
                 parentPanel.revalidate();
                 parentPanel.repaint();
             }

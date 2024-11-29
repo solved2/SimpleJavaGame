@@ -1,7 +1,6 @@
 package org.kunp.waiting;
 
 import org.kunp.inner.InnerWaitingRoomComponent;
-import org.kunp.server.ServerProtocol;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +14,6 @@ public class WaitingRoomCreationPanel extends JPanel {
     private JTextField playerLimitField;
 
     public WaitingRoomCreationPanel(JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
-        ServerProtocol serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(350, 150));
@@ -89,18 +87,17 @@ public class WaitingRoomCreationPanel extends JPanel {
                     } else {
                         // 서버 응답을 기다리기 위한 스레드
                         new Thread(() -> {
-                            try {
-                                serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit);
-                            } catch (IOException ex) {
-                                throw new RuntimeException(ex);
-                            }
-                            String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                            String message = String.format("102|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
                             out.println(message);
+                            out.flush();
+
+                            String message2 = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                            out.println(message2);
                             out.flush();
 
                             // GameRoomComponent로 전환
                             parentPanel.removeAll();
-                            parentPanel.add(new InnerWaitingRoomComponent(roomName, in, out, sessionId));
+                            parentPanel.add(new InnerWaitingRoomComponent(parentPanel, roomName, in, out, sessionId));
                             parentPanel.revalidate();
                             parentPanel.repaint();
                         }).start(); // 스레드 시작

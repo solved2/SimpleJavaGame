@@ -1,6 +1,9 @@
 package org.kunp.inner;
 
-import org.kunp.server.ServerProtocol;
+import org.kunp.map.Map;
+import org.kunp.map.Player;
+import org.kunp.waiting.WaitingRoomCreationPanel;
+import org.kunp.waiting.WaitingRoomListPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,9 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class InnerWaitingRoomControlPanel extends JPanel {
-    public InnerWaitingRoomControlPanel(String roomName, BufferedReader in, PrintWriter out, String sessionId) {
-
-        ServerProtocol serverProtocol = new ServerProtocol(in, out);
+    public InnerWaitingRoomControlPanel(JPanel parentPanel, String roomName, BufferedReader in, PrintWriter out, String sessionId) {
         setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         setPreferredSize(new Dimension(350, 50));
 
@@ -25,23 +26,56 @@ public class InnerWaitingRoomControlPanel extends JPanel {
         exitButton.setPreferredSize(new Dimension(100, 30));
         add(exitButton);
 
-        // 게임 시작 버튼 클릭 시 메시지 전송
         startGameButton.addActionListener(e -> {
-            try {
-                String message = serverProtocol.startGame(sessionId, roomName, 0, 0);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            new Thread(() -> {
+                try {
+                    String message = String.format("105|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                    out.println(message);
+                    out.flush();
+                    String response = in.readLine();
+                    System.out.println(response);
+
+                    String[] tokens = response.split("\\|");
+                    String role;
+                    if(Integer.parseInt(tokens[2]) == 0){
+                        role = "tagger";
+                    }else{
+                        role = "normal";
+                    }
+                    Player player = new Player(Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, sessionId);
+                    SwingUtilities.invokeLater(() -> {
+                        parentPanel.removeAll();
+                        parentPanel.add(new Map(in, out, player, sessionId));
+                        parentPanel.revalidate();
+                        parentPanel.repaint();
+                    });
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }).start();
         });
 
-        // 나가기 버튼 클릭 시 메시지 전송
         exitButton.addActionListener(e -> {
-            //todo : 서버와 퇴장 메세지 타입 조정 필요
-            try {
-                String message = serverProtocol.exitRoom(sessionId, roomName, 0, 9);
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+            new Thread(()->{
+                String message = String.format("103|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                out.println(message);
+                out.flush();
+
+                SwingUtilities.invokeLater(() -> {
+                    parentPanel.removeAll(); // 기존 컴포넌트 제거
+
+                    // 패널 레이아웃 명확히 설정 (BorderLayout으로 유지)
+                    parentPanel.setLayout(new BorderLayout());
+
+                    // 대기실 목록 및 생성 패널 추가
+                    parentPanel.add(new WaitingRoomListPanel(parentPanel, in, out, sessionId), BorderLayout.CENTER);
+                    parentPanel.add(new WaitingRoomCreationPanel(parentPanel, in, out, sessionId), BorderLayout.SOUTH);
+
+                    // UI 갱신
+                    parentPanel.revalidate();
+                    parentPanel.repaint();
+                });
+            }).start();
         });
     }
 }

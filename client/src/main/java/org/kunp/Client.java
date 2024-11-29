@@ -34,7 +34,7 @@ public class Client {
 
         // 대기실 목록 패널
         JPanel parentPanel = new JPanel(new BorderLayout());
-        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId, parentPanel);
+        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(parentPanel, in, out, sessionId);
         parentPanel.add(waitingRoomListPanel, BorderLayout.CENTER);
 
         // 대기실 생성 패널

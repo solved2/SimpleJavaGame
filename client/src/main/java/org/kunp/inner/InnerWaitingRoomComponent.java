@@ -11,6 +11,7 @@ import javax.swing.*;
 public class InnerWaitingRoomComponent extends JPanel {
 
   public InnerWaitingRoomComponent(
+          JPanel parentPanel,
           String roomName,
           BufferedReader in,
           PrintWriter out,
@@ -31,7 +32,7 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     // 컨트롤 패널 추가
     InnerWaitingRoomControlPanel controlPanel =
-            new InnerWaitingRoomControlPanel(roomName, in, out, sessionId);
+            new InnerWaitingRoomControlPanel(parentPanel, roomName, in, out, sessionId);
     add(controlPanel, BorderLayout.SOUTH);
 
 
