@@ -27,12 +27,17 @@ public class GameContextRegistry {
   }
 
   // Game Context Method
-  public void createGameContext(String roomName, String hostId) {
+  public int createGameContext(String roomName, String hostId) {
     int roomNumber = this.gameId++;
     GameContext gc = new GameContext(roomNumber, new AtomicBoolean(false));
     registerGameContext(roomNumber, gc);
+    gc.setChasers();
+    return roomNumber;
+  }
+
+  public void startGameContext(int gameId) {
+    GameContext gc = gameContexts.get(gameId);
     Runnable gameThread = new GameThread(gc);
-    // TODO: Reap thread.
     this.gameThreadPool.submit(gameThread);
   }
 

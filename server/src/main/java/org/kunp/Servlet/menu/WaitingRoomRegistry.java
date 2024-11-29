@@ -32,7 +32,7 @@ public class WaitingRoomRegistry {
 
   // 대기방 입장
   void enterWaitingRoom(Session session, String roomName) {
-    waitingRooms.putIfAbsent(roomName, new WaitingRoomContext(roomName));
+    waitingRooms.putIfAbsent(roomName, new WaitingRoomContext(roomName, session.getSessionId()));
     WaitingRoomContext waitingRoom = waitingRooms.get(roomName);
     waitingRoom.enter(session);
   }
@@ -44,9 +44,15 @@ public class WaitingRoomRegistry {
   }
 
   // 대기방 생성
-  void createWaitingRoom(String roomName) {
-    WaitingRoomContext waitingRoom = new WaitingRoomContext(roomName);
+  void createWaitingRoom(Session session, String roomName) {
+    WaitingRoomContext waitingRoom = new WaitingRoomContext(roomName, session.getSessionId());
     waitingRooms.put(roomName, waitingRoom);
   }
 
+  public void startGame(Session session, String roomName) {
+    if(!waitingRooms.get(roomName).isHost(session.getSessionId())) {
+      return;
+    }
+    waitingRooms.get(roomName).initGame(session);
+  }
 }

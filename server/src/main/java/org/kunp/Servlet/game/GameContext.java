@@ -3,7 +3,7 @@ package org.kunp.Servlet.game;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -14,7 +14,9 @@ public class GameContext {
 
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
   private final Map<String, int[]> positions = new ConcurrentHashMap<>();
+  private final Map<String, Boolean> isChaser = new HashMap<>();
   private final int gameId;
+  private final AtomicBoolean isStarted = new AtomicBoolean(false);
   private final AtomicBoolean isFinished;
 
   public GameContext(int gameId, AtomicBoolean isFinished) {
@@ -27,6 +29,7 @@ public class GameContext {
   }
 
   public void updateContext(String sessionId, int x, int y, int roomId) {
+    if (!isStarted.get()) return;
     this.positions.putIfAbsent(sessionId, new int[3]);
     this.positions.get(sessionId)[0] = x;
     this.positions.get(sessionId)[1] = y;
@@ -55,6 +58,34 @@ public class GameContext {
 
   public void leave(Session session) {
     participants.remove(session.getSessionId());
+  }
+
+  public void setChasers() {
+    List<String> keys = new ArrayList<>(participants.keySet());
+    if (keys.size() < 2) {
+      throw new IllegalStateException("Not enough participants to select two chasers");
+    }
+    Random random = new Random();
+    String chaser1 = keys.get(random.nextInt(keys.size()));
+    String chaser2;
+    do {
+      chaser2 = keys.get(random.nextInt(keys.size()));
+    } while (chaser1.equals(chaser2));
+    setChaser(chaser1);
+    setChaser(chaser2);
+    for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
+      try {
+        entry.getValue().write(String.format("113|%s|%d|%d|%d\n", isChaser.get(entry.getKey()), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
+        entry.getValue().flush();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    this.isStarted.set(true);
+  }
+
+  private void setChaser(String sessionId) {
+    isChaser.put(sessionId, true);
   }
 
   public boolean isEmpty() {

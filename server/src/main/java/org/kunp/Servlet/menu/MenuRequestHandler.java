@@ -32,22 +32,24 @@ public class MenuRequestHandler {
         System.out.println("대기방 조회");
         System.out.println(waitingRoomRegistry.getWaitingRooms());
         OutputStream outputStream = (OutputStream) session.getAttributes().get("ops");
-        outputStream.write(String.format("105|%s\n", waitingRoomRegistry.getWaitingRooms()).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(String.format("112|%s\n", waitingRoomRegistry.getWaitingRooms()).getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
-        System.out.println("send!");
         break;
       case 101:
         System.out.println("대기방 입장");
         waitingRoomRegistry.enterWaitingRoom(session, message.getRoomName());
+
         break;
       case 102:
         System.out.println("대기방 생성");
-        waitingRoomRegistry.createWaitingRoom(message.getRoomName());
+        waitingRoomRegistry.createWaitingRoom(session, message.getRoomName());
         break;
       case 103:
         System.out.println("대기방 퇴장");
         waitingRoomRegistry.leaveWaitingRoom(session, message.getRoomName());
         break;
+      case 105:
+        waitingRoomRegistry.startGame(session, message.getRoomName());
     }
 
   }

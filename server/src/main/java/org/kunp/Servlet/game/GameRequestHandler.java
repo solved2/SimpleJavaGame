@@ -2,8 +2,11 @@ package org.kunp.Servlet.game;
 
 import org.kunp.Servlet.message.GameMessage;
 import org.kunp.Servlet.session.Session;
+import org.kunp.Servlet.session.SessionManager;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
 
 public class GameRequestHandler {
     private static GameRequestHandler gameRequestHandler;
@@ -16,6 +19,15 @@ public class GameRequestHandler {
             gameRequestHandler = new GameRequestHandler();
         }
         return gameRequestHandler;
+    }
+
+    public void createGameContextAndJoinAll(String roomName, Session session, Map<String, OutputStream> users) {
+        int gameId = GameContextRegistry.getInstance().createGameContext(roomName, session.getSessionId());
+        for(Map.Entry<String, OutputStream> entry : users.entrySet()) {
+            Session user = SessionManager.getInstance().getSession(entry.getKey());
+            GameContextRegistry.getInstance().subscribe(user, gameId);
+        }
+
     }
 
     public void handleGameRequest(Session session, GameMessage parsedMessage) throws IOException {

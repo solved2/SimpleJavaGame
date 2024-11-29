@@ -15,8 +15,6 @@ public class Main {
   public static final ThreadGroup threadGroup = new ThreadGroup("ActiveThreads");
   private static final List<OutputStream> outputStreams = new CopyOnWriteArrayList<>();
   private static ServerSocket serverSocket;
-  private static SessionStorage sessionStorage;
-  private static ISessionIdGenerator sessionIdGenerator;
   private static SessionManager sessionManager;
   private static ConnectionConfigurer connectionConfigurer;
 
@@ -39,9 +37,7 @@ public class Main {
   private static void initDependencies() {
     try {
       serverSocket = new ServerSocket(SERVER_PORT);
-      sessionStorage = new SessionInMemoryStorage();
-      sessionIdGenerator = new SessionIdGenerator();
-      sessionManager = new SessionManager(sessionStorage, sessionIdGenerator);
+      sessionManager = SessionManager.getInstance();
       connectionConfigurer = new NativeConnectionConfigurer(sessionManager);
     } catch (Exception e) {
       System.err.println("Initialization error: " + e.getMessage());
@@ -89,7 +85,7 @@ public class Main {
         } catch (InterruptedException e) {
         }
         System.out.println("Active threads: " + Thread.activeCount());
-        System.out.println("Active Sessions : " + sessionStorage.size());
+        System.out.println("Active Sessions : " + sessionManager.getSessionCount());
       }
     }
   }
