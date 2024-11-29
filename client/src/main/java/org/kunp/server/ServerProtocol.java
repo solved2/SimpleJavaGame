@@ -47,11 +47,12 @@ public class ServerProtocol {
         System.out.println(in.readLine());
     }
 
-    public void exitRoom(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {
+    public String exitRoom(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {
         String message = String.format("103|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
         out.println(message);
         out.flush();
         System.out.println(in.readLine());
+        return in.readLine();
     }
 
     public String startGame(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {

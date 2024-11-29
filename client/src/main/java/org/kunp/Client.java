@@ -34,7 +34,7 @@ public class Client {
 
         // 대기실 목록 패널
         JPanel parentPanel = new JPanel(new BorderLayout());
-        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(parentPanel, in, out, sessionId);
+        WaitingRoomListPanel waitingRoomListPanel = new WaitingRoomListPanel(in, out, sessionId, parentPanel);
         parentPanel.add(waitingRoomListPanel, BorderLayout.CENTER);
 
         // 대기실 생성 패널
@@ -43,17 +43,6 @@ public class Client {
 
         frame.add(parentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
-
-//        // 플레이어 생성 (임시 사용자)
-//
-//        player = new Player(250, 250, "tagger", out, sessionId);
-//
-//        frame = new JFrame("Tag Game");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        Map map = new Map(in, out, player, sessionId);
-//        frame.add(map);
-//        frame.pack();
-//        frame.setVisible(true);
 
     }
 }

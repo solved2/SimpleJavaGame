@@ -6,8 +6,6 @@ import org.kunp.server.ServerProtocol;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 // 대기실 생성 패널
@@ -16,20 +14,8 @@ public class WaitingRoomCreationPanel extends JPanel {
     private JTextField timeLimitField;
     private JTextField playerLimitField;
 
-    private final ServerProtocol serverProtocol;
-
-    private final JPanel parentPanel;
-    private final BufferedReader in;
-    private final PrintWriter out;
-    private final String sessionId;
-
     public WaitingRoomCreationPanel(JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
-        this.parentPanel = parentPanel;
-        this.in = in;
-        this.out = out;
-        this.sessionId = sessionId;
-
-        this.serverProtocol = new ServerProtocol(in, out);
+        ServerProtocol serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(350, 150));
@@ -106,14 +92,14 @@ public class WaitingRoomCreationPanel extends JPanel {
                         new Thread(() -> {
                             try {
                                 serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit); // 서버의 응답 읽기
-                                Set<String> currentSessionIds = serverProtocol.enterRoom(sessionId, roomName, 0, 0);
-                                SwingUtilities.invokeLater(() -> {
-                                    // 대기실 컴포넌트로 전환
-                                    parentPanel.removeAll();
-                                    parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
-                                    parentPanel.revalidate();
-                                    parentPanel.repaint();
-                                });
+//                                Set<String> currentSessionIds = serverProtocol.enterRoom(sessionId, roomName, 0, 0);
+//                                SwingUtilities.invokeLater(() -> {
+//                                    // 대기실 컴포넌트로 전환
+//                                    parentPanel.removeAll();
+//                                    parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
+//                                    parentPanel.revalidate();
+//                                    parentPanel.repaint();
+//                                });
                             } catch (IOException ex) {
                                 ex.printStackTrace(); // 예외 로그
                             }

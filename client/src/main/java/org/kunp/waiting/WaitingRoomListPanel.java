@@ -11,25 +11,31 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 
+// 대기실 목록 리스트 패널
 public class WaitingRoomListPanel extends JPanel {
-    private final ServerProtocol serverProtocol;
-
     public WaitingRoomListPanel(
-            JPanel parentPanel, BufferedReader in, PrintWriter out, String sessionId) {
+            BufferedReader in, PrintWriter out, String sessionId, JPanel parentPanel) {
 
-        this.serverProtocol = new ServerProtocol(in, out);
+        ServerProtocol serverProtocol = new ServerProtocol(in, out);
 
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("대기실 목록"));
 
+        // 대기실 목록은 스크롤이 가능한 리스트
         JPanel roomListPanel = new JPanel();
         roomListPanel.setLayout(new BoxLayout(roomListPanel, BoxLayout.Y_AXIS));
 
         JScrollPane scrollPane = new JScrollPane(roomListPanel);
         scrollPane.setPreferredSize(new Dimension(400, 250));
+
+        // 마우스 휠 스크롤시 속도 설정
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
+        // 임시로 대기실 인원 명단 8인 추가
         Set<String> sessionIds = new HashSet<>();
+
+        // 임시로 대기실 컴포넌트 20개 추가
+        //
         List<WaitingRoomComponent> rooms = new ArrayList<>();
 
         JButton refreshButton = new JButton("새로고침");
@@ -39,41 +45,26 @@ public class WaitingRoomListPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
         add(refreshButton, BorderLayout.NORTH);
 
-        refreshButton.addActionListener(e -> {
-            new Thread(() -> { // 새로운 스레드 생성
-                try {
-                    String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
-                    System.out.println(response);
-                    String[] tokens = response.split("\\|");
-
-                    if (tokens.length > 1 && !tokens[1].isEmpty()) {
-                        SwingUtilities.invokeLater(() -> {
-                            rooms.clear();
-                            Arrays.stream(tokens[1].split(","))
-                                    .map(el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel, sessionIds))
-                                    .forEach(rooms::add);
-
-                            roomListPanel.removeAll();
-                            rooms.forEach(roomListPanel::add);
-                            roomListPanel.revalidate();
-                            roomListPanel.repaint();
-                        });
-                    } else {
-                        // 대기실이 없는 경우 처리
-                        SwingUtilities.invokeLater(() -> {
-                            rooms.clear();
-                            roomListPanel.removeAll();
-                            roomListPanel.revalidate();
-                            roomListPanel.repaint();
-                            JOptionPane.showMessageDialog(this, "현재 생성된 대기실이 없습니다.", "오류", JOptionPane.INFORMATION_MESSAGE);
-                        });
+        refreshButton.addActionListener(
+                e -> {
+                    String message;
+                    try {
+                        message = serverProtocol.refreshRoom(sessionId, null, 0, 0);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
                     }
-                } catch (IOException ex) {
-                    ex.printStackTrace(); // 예외 로그
-                }
-            }).start(); // 스레드 시작
-        });
-
+                    rooms.clear();
+                    String[] tokens = message.split("\\|");
+                    Arrays.stream(tokens[1].split(","))
+                            .map(
+                                    el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel, sessionIds))
+                            .forEach(rooms::add);
+                    roomListPanel.removeAll();
+                    rooms.stream().forEach(roomListPanel::add);
+                    scrollPane.removeAll();
+                    scrollPane.add(roomListPanel);
+                    scrollPane.revalidate();
+                    scrollPane.repaint();
+                });
     }
 }
-

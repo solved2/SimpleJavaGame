@@ -8,23 +8,13 @@ import java.util.Set;
 import javax.swing.*;
 
 public class InnerWaitingRoomComponent extends JPanel {
-  private final JPanel parentPanel;
-  private final String sessionId;
-  private final Set<String> sessionIds;
-  private final BufferedReader in;
-  private final PrintWriter out;;
 
-  public InnerWaitingRoomComponent( JPanel parentPanel,
-      Set<String> sessionIds,
-      String roomName,
-      BufferedReader in,
-      PrintWriter out,
-      String sessionId) {
-    this.parentPanel = parentPanel;
-    this.sessionIds = sessionIds;
-    this.in = in;
-    this.out = out;
-    this.sessionId = sessionId;
+  public InnerWaitingRoomComponent(
+          Set<String> sessionIds,
+          String roomName,
+          BufferedReader in,
+          PrintWriter out,
+          String sessionId) {
 
     setLayout(new BorderLayout());
     setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -40,13 +30,15 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     // 컨트롤 패널 추가
     InnerWaitingRoomControlPanel controlPanel =
-        new InnerWaitingRoomControlPanel(parentPanel, roomName, in, out, sessionId);
+            new InnerWaitingRoomControlPanel(roomName, in, out, sessionId);
     add(controlPanel, BorderLayout.SOUTH);
+
+
 
     Thread thread = new Thread(() -> {
       sessionIds.clear();
       try {
-          String message;
+        String message;
         while ((message = in.readLine()) != null) {
           System.out.println(message);
           String[] tokens = message.split("\\|");
