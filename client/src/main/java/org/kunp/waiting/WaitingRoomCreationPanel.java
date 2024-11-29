@@ -105,33 +105,15 @@ public class WaitingRoomCreationPanel extends JPanel {
                         // 서버 응답을 기다리기 위한 스레드
                         new Thread(() -> {
                             try {
-                                String response = serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit); // 서버의 응답 읽기
-                                System.out.println(response);
-                                String[] tokens = response.split("\\|");
-
-                                // 대기실 생성 성공 여부 확인
-                                if ("112".equals(tokens[0])) { // 성공적으로 생성된 경우
-                                    // 대기실 목록 새로 고치기
-                                    refreshRoomList();
-
-                                    String response2 = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
-                                    System.out.println(response2);
-                                    String[] tokens2 = response2.split("\\|");
-                                    Set<String> currentSessionIds = new HashSet<>(Arrays.asList(tokens2[1].split(",")));
-
-                                    SwingUtilities.invokeLater(() -> {
-                                        // 대기실 컴포넌트로 전환
-                                        parentPanel.removeAll();
-                                        parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
-                                        parentPanel.revalidate();
-                                        parentPanel.repaint();
-                                    });
-                                } else {
-                                    // 실패한 경우에 대한 처리 (예: 방 이름 중복 등)
-                                    SwingUtilities.invokeLater(() -> {
-                                        JOptionPane.showMessageDialog(this, "대기실 생성에 실패했습니다: " + tokens[1], "오류", JOptionPane.ERROR_MESSAGE);
-                                    });
-                                }
+                                serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit); // 서버의 응답 읽기
+                                Set<String> currentSessionIds = serverProtocol.enterRoom(sessionId, roomName, 0, 0);
+                                SwingUtilities.invokeLater(() -> {
+                                    // 대기실 컴포넌트로 전환
+                                    parentPanel.removeAll();
+                                    parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
+                                    parentPanel.revalidate();
+                                    parentPanel.repaint();
+                                });
                             } catch (IOException ex) {
                                 ex.printStackTrace(); // 예외 로그
                             }
@@ -142,17 +124,6 @@ public class WaitingRoomCreationPanel extends JPanel {
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
-            }
-        });
-    }
-
-    private void refreshRoomList() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
-                System.out.println(response);
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
         });
     }

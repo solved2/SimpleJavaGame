@@ -58,8 +58,7 @@ public class InnerWaitingRoomControlPanel extends JPanel {
         exitButton.addActionListener(e -> {
             new Thread(() -> {
                 try {
-                    String response = serverProtocol.exitRoom(sessionId, roomName, 0, 0);
-                    System.out.println(response);
+                    serverProtocol.exitRoom(sessionId, roomName, 0, 0);
 
                     SwingUtilities.invokeLater(() -> {
                         parentPanel.removeAll();

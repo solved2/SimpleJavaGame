@@ -55,10 +55,7 @@ public class WaitingRoomComponent extends JPanel {
                 // 서버에 현재 대기실 세션 ID 요청
                 new Thread(() -> {
                     try {
-                        String response = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
-                        System.out.println(response);
-                        String[] tokens = response.split("\\|");
-                        Set<String> currentSessionIds = new HashSet<>(Arrays.asList(tokens[1].split(",")));
+                        Set<String> currentSessionIds  = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
 
                         SwingUtilities.invokeLater(() -> {
                             parentPanel.removeAll();
