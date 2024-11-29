@@ -110,7 +110,10 @@ public class WaitingRoomCreationPanel extends JPanel {
                                 String[] tokens = response.split("\\|");
 
                                 // 대기실 생성 성공 여부 확인
-                                if ("102".equals(tokens[0])) { // 성공적으로 생성된 경우
+                                if ("112".equals(tokens[0])) { // 성공적으로 생성된 경우
+                                    // 대기실 목록 새로 고치기
+                                    refreshRoomList();
+
                                     String response2 = serverProtocol.enterRoom(sessionId, roomName, 0, 0); // 서버로부터 응답 읽기
                                     System.out.println(response2);
                                     String[] tokens2 = response2.split("\\|");
@@ -141,6 +144,16 @@ public class WaitingRoomCreationPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
             }
         });
+    }
 
+    private void refreshRoomList() {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
+                System.out.println(response);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }

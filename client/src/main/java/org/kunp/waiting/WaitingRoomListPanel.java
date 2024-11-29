@@ -46,22 +46,34 @@ public class WaitingRoomListPanel extends JPanel {
                     System.out.println(response);
                     String[] tokens = response.split("\\|");
 
-                    SwingUtilities.invokeLater(() -> { // UI 업데이트를 UI 스레드에서
-                        rooms.clear();
-                        Arrays.stream(tokens[1].split(","))
-                                .map(el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel, sessionIds))
-                                .forEach(rooms::add);
+                    if (tokens.length > 1 && !tokens[1].isEmpty()) {
+                        SwingUtilities.invokeLater(() -> {
+                            rooms.clear();
+                            Arrays.stream(tokens[1].split(","))
+                                    .map(el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel, sessionIds))
+                                    .forEach(rooms::add);
 
-                        roomListPanel.removeAll();
-                        rooms.forEach(roomListPanel::add);
-                        roomListPanel.revalidate();
-                        roomListPanel.repaint();
-                    });
+                            roomListPanel.removeAll();
+                            rooms.forEach(roomListPanel::add);
+                            roomListPanel.revalidate();
+                            roomListPanel.repaint();
+                        });
+                    } else {
+                        // 대기실이 없는 경우 처리
+                        SwingUtilities.invokeLater(() -> {
+                            rooms.clear();
+                            roomListPanel.removeAll();
+                            roomListPanel.revalidate();
+                            roomListPanel.repaint();
+                            JOptionPane.showMessageDialog(this, "현재 생성된 대기실이 없습니다.", "오류", JOptionPane.INFORMATION_MESSAGE);
+                        });
+                    }
                 } catch (IOException ex) {
                     ex.printStackTrace(); // 예외 로그
                 }
             }).start(); // 스레드 시작
         });
+
     }
 }
 
