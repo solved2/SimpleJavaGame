@@ -4,13 +4,13 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 import java.util.Set;
 import javax.swing.*;
 
 public class InnerWaitingRoomComponent extends JPanel {
 
   public InnerWaitingRoomComponent(
-          Set<String> sessionIds,
           String roomName,
           BufferedReader in,
           PrintWriter out,
@@ -24,6 +24,7 @@ public class InnerWaitingRoomComponent extends JPanel {
     nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
     add(nameLabel, BorderLayout.NORTH);
 
+    Set<String> sessionIds = new HashSet<>();
     // 사용자 목록 패널 추가
     InnerWaitingRoomListPanel listPanel = new InnerWaitingRoomListPanel(sessionIds);
     add(listPanel, BorderLayout.CENTER);

@@ -80,7 +80,6 @@ public class WaitingRoomCreationPanel extends JPanel {
                     int timeLimit = Integer.parseInt(timeLimitText);
                     int playerLimit = Integer.parseInt(playerLimitText);
 
-                    // 조건 확인: 제한 시간은 1 이상의 정수, 제한 인원은 2명 이상 8명 이하의 짝수
                     if (timeLimit <= 0) {
                         JOptionPane.showMessageDialog(this, "제한 시간은 1 이상의 분 단위 정수여야 합니다.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else if (playerLimit < 2 || playerLimit > 8 || playerLimit % 2 != 0) {
@@ -91,18 +90,19 @@ public class WaitingRoomCreationPanel extends JPanel {
                         // 서버 응답을 기다리기 위한 스레드
                         new Thread(() -> {
                             try {
-                                serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit); // 서버의 응답 읽기
-//                                Set<String> currentSessionIds = serverProtocol.enterRoom(sessionId, roomName, 0, 0);
-//                                SwingUtilities.invokeLater(() -> {
-//                                    // 대기실 컴포넌트로 전환
-//                                    parentPanel.removeAll();
-//                                    parentPanel.add(new InnerWaitingRoomComponent(parentPanel, currentSessionIds, roomName, in, out, sessionId));
-//                                    parentPanel.revalidate();
-//                                    parentPanel.repaint();
-//                                });
+                                serverProtocol.createRoom(sessionId, roomName, timeLimit, playerLimit);
                             } catch (IOException ex) {
-                                ex.printStackTrace(); // 예외 로그
+                                throw new RuntimeException(ex);
                             }
+                            String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                            out.println(message);
+                            out.flush();
+
+                            // GameRoomComponent로 전환
+                            parentPanel.removeAll();
+                            parentPanel.add(new InnerWaitingRoomComponent(roomName, in, out, sessionId));
+                            parentPanel.revalidate();
+                            parentPanel.repaint();
                         }).start(); // 스레드 시작
                     }
                 } catch (NumberFormatException ex) {

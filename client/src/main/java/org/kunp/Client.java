@@ -43,7 +43,6 @@ public class Client {
 
         frame.add(parentPanel, BorderLayout.CENTER);
         frame.setVisible(true);
-
     }
 }
 

@@ -19,25 +19,9 @@ public class ServerProtocol {
         String message = String.format("100|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
         out.println(message);
         out.flush();
-        System.out.println(in.readLine());
-        return in.readLine();
-    }
-
-    public Set<String> enterRoom(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {
-        String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
-        out.println(message);
-        out.flush();
-
-        Set<String> sessionIds = new HashSet<>();
-        while ((message = in.readLine()) != null) {
-            System.out.println(message);
-            String[] parts = message.split("\\|");
-            if ("110".equals(parts[0])) {
-                String sessionIdInRoom = parts[1];
-                sessionIds.add(sessionIdInRoom);
-            }
-        }
-        return sessionIds;
+        String response = in.readLine();
+        System.out.println(response);
+        return response;
     }
 
     public void createRoom(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {
@@ -51,15 +35,17 @@ public class ServerProtocol {
         String message = String.format("103|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
         out.println(message);
         out.flush();
-        System.out.println(in.readLine());
-        return in.readLine();
+        String response = in.readLine();
+        System.out.println(response);
+        return response;
     }
 
     public String startGame(String sessionId, String roomName, int timeLimit, int playerLimit) throws IOException {
         String message = String.format("105|%s|%s|%d|%d|1", sessionId, roomName, timeLimit, playerLimit);
         out.println(message);
         out.flush();
-        System.out.println(in.readLine());
-        return in.readLine();
+        String response = in.readLine();
+        System.out.println(response);
+        return response;
     }
 }

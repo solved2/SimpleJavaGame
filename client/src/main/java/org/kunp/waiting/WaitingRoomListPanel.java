@@ -31,40 +31,56 @@ public class WaitingRoomListPanel extends JPanel {
         // 마우스 휠 스크롤시 속도 설정
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // 임시로 대기실 인원 명단 8인 추가
-        Set<String> sessionIds = new HashSet<>();
-
-        // 임시로 대기실 컴포넌트 20개 추가
-        //
         List<WaitingRoomComponent> rooms = new ArrayList<>();
 
         JButton refreshButton = new JButton("새로고침");
         refreshButton.setFocusPainted(false);
         refreshButton.setPreferredSize(new Dimension(100, 50));
 
-        add(scrollPane, BorderLayout.CENTER);
         add(refreshButton, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        refreshButton.addActionListener(e -> {
+            new Thread(() -> {
+                try {
+                    String response = serverProtocol.refreshRoom(sessionId, null, 0, 0);
+                    String[] tokens = response.split("\\|");
 
-        refreshButton.addActionListener(
-                e -> {
-                    String message;
-                    try {
-                        message = serverProtocol.refreshRoom(sessionId, null, 0, 0);
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    rooms.clear();
-                    String[] tokens = message.split("\\|");
-                    Arrays.stream(tokens[1].split(","))
-                            .map(
-                                    el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel, sessionIds))
-                            .forEach(rooms::add);
-                    roomListPanel.removeAll();
-                    rooms.stream().forEach(roomListPanel::add);
-                    scrollPane.removeAll();
-                    scrollPane.add(roomListPanel);
-                    scrollPane.revalidate();
-                    scrollPane.repaint();
-                });
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            System.out.println("Running on EDT: " + SwingUtilities.isEventDispatchThread());
+
+                            // Rooms 업데이트
+                            rooms.clear();
+                            if(tokens.length > 1) {
+                                Arrays.stream(tokens[1].split(","))
+                                        .map(el -> new WaitingRoomComponent(in, out, sessionId, el, parentPanel))
+                                        .forEach(rooms::add);
+                            }
+
+                            // RoomListPanel 업데이트
+                            roomListPanel.removeAll();
+                            rooms.forEach(roomListPanel::add);
+
+                            // 디버깅 로그
+                            System.out.println("Number of rooms: " + rooms.size());
+                            System.out.println("Room list panel component count: " + roomListPanel.getComponentCount());
+
+                            // 갱신
+                            roomListPanel.revalidate();
+                            roomListPanel.repaint();
+
+                            // 상위 패널 갱신
+                            parentPanel.revalidate();
+                            parentPanel.repaint();
+                        } catch (Exception exx) {
+                            exx.printStackTrace();
+                        }
+                    });
+
+                } catch (IOException ex) {
+                    ex.printStackTrace(); // 예외 로그
+                } // 스레드 시작
+            }).start();
+        });
     }
 }
