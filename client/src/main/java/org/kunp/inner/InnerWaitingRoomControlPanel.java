@@ -2,7 +2,6 @@ package org.kunp.inner;
 
 import org.kunp.map.Map;
 import org.kunp.map.Player;
-import org.kunp.server.ServerProtocol;
 import org.kunp.waiting.WaitingRoomCreationPanel;
 import org.kunp.waiting.WaitingRoomListPanel;
 
@@ -13,11 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class InnerWaitingRoomControlPanel extends JPanel {
-    private final ServerProtocol serverProtocol;
-
     public InnerWaitingRoomControlPanel(JPanel parentPanel, String roomName, BufferedReader in, PrintWriter out, String sessionId) {
-        this.serverProtocol = new ServerProtocol(in, out);
-
         setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         setPreferredSize(new Dimension(350, 50));
 
@@ -32,17 +27,22 @@ public class InnerWaitingRoomControlPanel extends JPanel {
         add(exitButton);
 
         startGameButton.addActionListener(e -> {
-            //todo: 방장인 사람만 게임 시작 가능 -> 서버에서 체크
             new Thread(() -> {
                 try {
-                    String response = serverProtocol.startGame(sessionId, roomName, 0, 0);
+                    String message = String.format("105|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                    out.println(message);
+                    out.flush();
+                    String response = in.readLine();
                     System.out.println(response);
-                    String[] parts = response.split("\\|");
-                    int x = Integer.parseInt(parts[1]);
-                    int y = Integer.parseInt(parts[2]);
-                    String role = parts[3];
 
-                    Player player = new Player(x, y, role, out, sessionId);
+                    String[] tokens = response.split("\\|");
+                    String role;
+                    if(Integer.parseInt(tokens[2]) == 0){
+                        role = "tagger";
+                    }else{
+                        role = "normal";
+                    }
+                    Player player = new Player(Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, sessionId);
                     SwingUtilities.invokeLater(() -> {
                         parentPanel.removeAll();
                         parentPanel.add(new Map(in, out, player, sessionId));
@@ -50,28 +50,31 @@ public class InnerWaitingRoomControlPanel extends JPanel {
                         parentPanel.repaint();
                     });
                 } catch (IOException ex) {
-                    ex.printStackTrace(); // 예외 로그
+                    throw new RuntimeException(ex);
                 }
-            }).start(); // 스레드 시작
+            }).start();
         });
 
         exitButton.addActionListener(e -> {
-            new Thread(() -> {
-                try {
-                    String response = serverProtocol.exitRoom(sessionId, roomName, 0, 0);
-                    System.out.println(response);
+            new Thread(()->{
+                String message = String.format("103|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+                out.println(message);
+                out.flush();
 
-                    SwingUtilities.invokeLater(() -> {
-                        parentPanel.removeAll();
-                        parentPanel.setLayout(new BoxLayout(parentPanel, BoxLayout.Y_AXIS));
-                        parentPanel.add(new WaitingRoomListPanel(parentPanel, in, out, sessionId));
-                        parentPanel.add(new WaitingRoomCreationPanel(parentPanel, in, out, sessionId));
-                        parentPanel.revalidate();
-                        parentPanel.repaint();
-                    });
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                SwingUtilities.invokeLater(() -> {
+                    parentPanel.removeAll(); // 기존 컴포넌트 제거
+
+                    // 패널 레이아웃 명확히 설정 (BorderLayout으로 유지)
+                    parentPanel.setLayout(new BorderLayout());
+
+                    // 대기실 목록 및 생성 패널 추가
+                    parentPanel.add(new WaitingRoomListPanel(parentPanel, in, out, sessionId), BorderLayout.CENTER);
+                    parentPanel.add(new WaitingRoomCreationPanel(parentPanel, in, out, sessionId), BorderLayout.SOUTH);
+
+                    // UI 갱신
+                    parentPanel.revalidate();
+                    parentPanel.repaint();
+                });
             }).start();
         });
     }
