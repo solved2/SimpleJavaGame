@@ -2,6 +2,7 @@ package org.kunp.Servlet.menu;
 
 import org.kunp.Servlet.session.Session;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +32,7 @@ public class WaitingRoomRegistry {
   }
 
   // 대기방 입장
-  void enterWaitingRoom(Session session, String roomName) {
+  void enterWaitingRoom(Session session, String roomName) throws IOException {
     waitingRooms.putIfAbsent(roomName, new WaitingRoomContext(roomName, session.getSessionId()));
     WaitingRoomContext waitingRoom = waitingRooms.get(roomName);
     waitingRoom.enter(session);

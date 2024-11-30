@@ -31,12 +31,12 @@ public class GameContextRegistry {
     int roomNumber = this.gameId++;
     GameContext gc = new GameContext(roomNumber, new AtomicBoolean(false));
     registerGameContext(roomNumber, gc);
-    gc.setChasers();
     return roomNumber;
   }
 
   public void startGameContext(int gameId) {
     GameContext gc = gameContexts.get(gameId);
+    gc.setChasers();
     Runnable gameThread = new GameThread(gc);
     this.gameThreadPool.submit(gameThread);
   }

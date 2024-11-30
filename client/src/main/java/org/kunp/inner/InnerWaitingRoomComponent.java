@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.swing.*;
 
@@ -45,15 +46,15 @@ public class InnerWaitingRoomComponent extends JPanel {
 
           if (tokens.length > 1) {
             String type = tokens[0]; // 메시지 타입 (예: 110)
-            String targetSessionId = tokens[1];
+            String[] data = tokens[1].split(",");
 
             SwingUtilities.invokeLater(() -> {
               switch (type) {
                 case "110": // 새 사용자 입장
-                  sessionIds.add(targetSessionId);
+                  sessionIds.addAll(List.of(data));
                   break;
                 case "111": // 사용자 퇴장
-                  sessionIds.remove(targetSessionId);
+                  sessionIds.remove(data[0]);
                   break;
                 default:
                   System.out.println("Unhandled message type: " + type);

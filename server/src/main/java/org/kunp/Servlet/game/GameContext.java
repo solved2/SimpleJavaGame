@@ -6,7 +6,6 @@ import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.kunp.Servlet.session.Session;
 
 //TODO : thread로 따로 빼기
@@ -14,7 +13,7 @@ public class GameContext {
 
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
   private final Map<String, int[]> positions = new ConcurrentHashMap<>();
-  private final Map<String, Boolean> isChaser = new HashMap<>();
+  private final Map<String, Integer> isChaser = new HashMap<>();
   private final int gameId;
   private final AtomicBoolean isStarted = new AtomicBoolean(false);
   private final AtomicBoolean isFinished;
@@ -40,7 +39,7 @@ public class GameContext {
     for (OutputStream oos : participants.values()) {
       try {
         for(Map.Entry<String, int[]> entry : positions.entrySet()) {
-          oos.write(createMessage(1, entry.getValue(), entry.getKey(), this.gameId).getBytes());
+          oos.write(createMessage(210, entry.getValue(), entry.getKey(), this.gameId).getBytes());
           oos.flush();
         }
       } catch (SocketException e) {
@@ -54,6 +53,7 @@ public class GameContext {
   public void enter(Session session) {
     if(participants.containsKey(session.getSessionId())) return;
     participants.put(session.getSessionId(), (OutputStream) session.getAttributes().get("ops"));
+    positions.put(session.getSessionId(), new int[3]);
   }
 
   public void leave(Session session) {
@@ -75,7 +75,7 @@ public class GameContext {
     setChaser(chaser2);
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       try {
-        entry.getValue().write(String.format("113|%s|%d|%d|%d\n", isChaser.get(entry.getKey()), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
+        entry.getValue().write(String.format("113|%d|%d|%d\n", isChaser.getOrDefault(entry.getKey(), 1), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
         entry.getValue().flush();
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -85,7 +85,7 @@ public class GameContext {
   }
 
   private void setChaser(String sessionId) {
-    isChaser.put(sessionId, true);
+    isChaser.put(sessionId, 0);
   }
 
   public boolean isEmpty() {
@@ -106,7 +106,7 @@ public class GameContext {
       int[] targetPos = entry.getValue();
       System.out.println("pos : " + pos[0] + " " + pos[1]);
       if(isAvailable(pos, targetPos)) {
-        participants.get(entry.getKey()).write(createMessage(2, targetPos, entry.getKey(), this.gameId).getBytes());
+        participants.get(entry.getKey()).write(createMessage(211, targetPos, entry.getKey(), this.gameId).getBytes());
       }
     }
   }

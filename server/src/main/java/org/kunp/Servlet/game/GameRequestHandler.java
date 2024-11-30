@@ -27,6 +27,7 @@ public class GameRequestHandler {
             Session user = SessionManager.getInstance().getSession(entry.getKey());
             GameContextRegistry.getInstance().subscribe(user, gameId);
         }
+        GameContextRegistry.getInstance().startGameContext(gameId);
 
     }
 

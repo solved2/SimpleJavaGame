@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static org.kunp.Servlet.menu.WaitingRoomRegistry.getInstance;
 
@@ -26,12 +27,17 @@ public class WaitingRoomContext {
   }
 
   //110번 : 입장 메세지
-  public synchronized void enter(Session session) {
+  public synchronized void enter(Session session) throws IOException {
     if(participants.containsKey(session.getSessionId())) return;
-    participants.put(session.getSessionId(), (OutputStream) session.getAttributes().get("ops"));
+    OutputStream ops = (OutputStream) session.getAttributes().get("ops");
+    participants.put(session.getSessionId(), ops);
+
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
-      broadCast("110|%s\n".formatted(entry.getKey()));
+      broadCast("110|%s|name|content|time\n".formatted(entry.getKey()));
     }
+    // send every user;
+    ops.write("110|%s|name|content|time\n".formatted(String.join(",", participants.keySet())).getBytes());
+    ops.flush();
   }
 
   //111번 : 퇴장 메세지
