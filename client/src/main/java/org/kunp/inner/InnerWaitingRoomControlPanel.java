@@ -27,20 +27,6 @@ public class InnerWaitingRoomControlPanel extends JPanel {
         exitButton.setPreferredSize(new Dimension(100, 30));
         add(exitButton);
 
-        serverCommunicator.addMessageListener(message -> {
-            String[] tokens = message.split("\\|");
-            if (tokens[0].equals("113")){
-                SwingUtilities.invokeLater(() -> {
-                    System.out.println("Game starting...");
-                    String role = tokens[1].equals("0") ? "tagger" : "normal";
-                    Player player = new Player(
-                            Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
-                    );
-                    screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
-                });
-            }
-        });
-
         // 게임 시작 버튼
         startGameButton.addActionListener(e -> {
             String message = String.format("105|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, 0, 0);

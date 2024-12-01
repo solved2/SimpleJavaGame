@@ -33,13 +33,13 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     // 메시지 리스너 등록
     ServerCommunicator.ServerMessageListener listener = message -> {
-      handleServerMessage( message, sessionIds, listPanel);
+      handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, screenManager);
     };
 
     stateManager.addMessageListener(listener);
   }
 
-  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel) {
+  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager, ScreenManager screenManager) {
     String[] tokens = message.split("\\|");
     System.out.println(message);
 
@@ -58,6 +58,20 @@ public class InnerWaitingRoomComponent extends JPanel {
       else if (type.equals("111")) { // 사용자 퇴장
         String[] data = tokens[1].split(",");
         sessionIds.remove(data[0]);
+      }else if (type.equals("113")) {
+        SwingUtilities.invokeLater(() -> {
+          System.out.println("Game starting...");
+          try {
+            String role = tokens[1].equals("0") ? "tagger" : "normal";
+            Player player = new Player(
+                    Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
+            );
+            screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
+            System.out.println("Map screen added successfully."); // 화면 추가 확인
+          } catch (Exception ex) {
+            ex.printStackTrace(); // 오류 출력
+          }
+        });
       } else {
         System.out.println("Unhandled message type: " + type);
       }
