@@ -45,36 +45,39 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     if (tokens.length > 1) {
       String type = tokens[0];
-      if (type.equals("110")) {
-        String[] sessions = message.split("\n");
-        String lastSessionMessage = sessions[sessions.length - 1];
-        String[] sessionData = lastSessionMessage.split("\\|");
-        if (sessionData.length > 1) {
-          String[] sessionIdsArray = sessionData[1].split(",");
-          Set<String> newSessionIds = Set.of(sessionIdsArray);
-          sessionIds.addAll(newSessionIds);
+        switch (type) {
+            case "110" -> {
+                String[] sessions = message.split("\n");
+                String lastSessionMessage = sessions[sessions.length - 1];
+                String[] sessionData = lastSessionMessage.split("\\|");
+                if (sessionData.length > 1) {
+                    String[] sessionIdsArray = sessionData[1].split(",");
+                    Set<String> newSessionIds = Set.of(sessionIdsArray);
+                    sessionIds.addAll(newSessionIds);
+                }
+            }
+            case "111" -> {
+                String[] data = tokens[1].split(",");
+                sessionIds.remove(data[0]);
+            }
+            case "113" -> SwingUtilities.invokeLater(() -> {
+                System.out.println("Game starting...");
+                try {
+                    String role = tokens[1].equals("0") ? "tagger" : "normal";
+                    Player player = new Player(
+                            Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
+                    );
+                    screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
+                    System.out.println("Map screen added successfully.");
+                    stateManager.sendServerRequest(message, () -> {
+                        stateManager.switchTo("Map");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // 오류 출력
+                }
+            });
+            default -> System.out.println("Unhandled message type: " + type);
         }
-      }
-      else if (type.equals("111")) { // 사용자 퇴장
-        String[] data = tokens[1].split(",");
-        sessionIds.remove(data[0]);
-      }else if (type.equals("113")) {
-        SwingUtilities.invokeLater(() -> {
-          System.out.println("Game starting...");
-          try {
-            String role = tokens[1].equals("0") ? "tagger" : "normal";
-            Player player = new Player(
-                    Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
-            );
-            screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
-            System.out.println("Map screen added successfully."); // 화면 추가 확인
-          } catch (Exception ex) {
-            ex.printStackTrace(); // 오류 출력
-          }
-        });
-      } else {
-        System.out.println("Unhandled message type: " + type);
-      }
       SwingUtilities.invokeLater(() -> listPanel.updateSessionList(sessionIds));
     }
   }
