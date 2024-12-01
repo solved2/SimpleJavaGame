@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.Set;
 
 public class InnerWaitingRoomListPanel extends JPanel {
-    private JPanel gridPanel;
+    private final JPanel gridPanel;
 
     public InnerWaitingRoomListPanel(Set<String> sessionIds) {
         setLayout(new BorderLayout());
@@ -20,23 +20,18 @@ public class InnerWaitingRoomListPanel extends JPanel {
     }
 
     public void updateSessionList(Set<String> sessionIds) {
-        gridPanel.removeAll(); // 기존 컴포넌트 제거
-
-        // 짝수 인원만 추가
-        if (sessionIds.size() % 2 != 0) {
-            sessionIds.add("대기 중"); // 임시로 빈 자리 추가
-        }
+        gridPanel.removeAll();
 
         for (String id : sessionIds) {
             JPanel userPanel = new JPanel();
             userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            userPanel.setLayout(new GridBagLayout()); // 중앙 정렬을 위해 GridBagLayout 사용
+            userPanel.setLayout(new GridBagLayout());
 
             JLabel label = new JLabel(id);
-            label.setFont(new Font("Arial", Font.BOLD, 16)); // 글꼴 설정 (크기 및 스타일)
-            label.setHorizontalAlignment(SwingConstants.CENTER); // 중앙 정렬
+            label.setFont(new Font("Arial", Font.BOLD, 16));
+            label.setHorizontalAlignment(SwingConstants.CENTER);
 
-            userPanel.add(label); // 패널에 라벨 추가
+            userPanel.add(label);
             gridPanel.add(userPanel);
         }
 

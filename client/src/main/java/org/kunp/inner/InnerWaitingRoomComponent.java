@@ -1,23 +1,21 @@
 package org.kunp.inner;
 
+import org.kunp.ScreenManager;
+import org.kunp.ServerCommunicator;
+import org.kunp.StateManager;
+import org.kunp.map.Map;
+import org.kunp.map.Player;
+
+import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javax.swing.*;
+
 
 public class InnerWaitingRoomComponent extends JPanel {
-
-  public InnerWaitingRoomComponent(
-          JPanel parentPanel,
-          String roomName,
-          BufferedReader in,
-          PrintWriter out,
-          String sessionId) {
-
+  public InnerWaitingRoomComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, String roomName, BufferedReader in, PrintWriter out) {
     setLayout(new BorderLayout());
     setBorder(BorderFactory.createLineBorder(Color.GRAY));
     setPreferredSize(new Dimension(350, 200));
@@ -27,47 +25,60 @@ public class InnerWaitingRoomComponent extends JPanel {
     add(nameLabel, BorderLayout.NORTH);
 
     Set<String> sessionIds = new HashSet<>();
-    // 사용자 목록 패널 추가
     InnerWaitingRoomListPanel listPanel = new InnerWaitingRoomListPanel(sessionIds);
     add(listPanel, BorderLayout.CENTER);
 
-    // 컨트롤 패널 추가
-    InnerWaitingRoomControlPanel controlPanel =
-            new InnerWaitingRoomControlPanel(parentPanel, roomName, in, out, sessionId);
+    InnerWaitingRoomControlPanel controlPanel = new InnerWaitingRoomControlPanel(stateManager, screenManager, serverCommunicator, roomName, in, out);
     add(controlPanel, BorderLayout.SOUTH);
 
-    // 서버 메시지 수신 및 처리 스레드
-    Thread thread = new Thread(() -> {
-      try {
-        String message;
-        while ((message = in.readLine()) != null) {
-          System.out.println("Received: " + message);
-          String[] tokens = message.split("\\|");
+    // 메시지 리스너 등록
+    ServerCommunicator.ServerMessageListener listener = message -> {
+      handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, screenManager);
+    };
 
-          if (tokens.length > 1) {
-            String type = tokens[0]; // 메시지 타입 (예: 110)
-            String[] data = tokens[1].split(",");
+    stateManager.addMessageListener(listener);
+  }
 
-            SwingUtilities.invokeLater(() -> {
-              switch (type) {
-                case "110": // 새 사용자 입장
-                  sessionIds.addAll(List.of(data));
-                  break;
-                case "111": // 사용자 퇴장
-                  sessionIds.remove(data[0]);
-                  break;
-                default:
-                  System.out.println("Unhandled message type: " + type);
-                  return;
-              }
-              listPanel.updateSessionList(sessionIds); // UI 갱신
+  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager, ScreenManager screenManager) {
+    String[] tokens = message.split("\\|");
+    System.out.println(message);
+
+    if (tokens.length > 1) {
+      String type = tokens[0];
+        switch (type) {
+            case "110" -> {
+                String[] sessions = message.split("\n");
+                String lastSessionMessage = sessions[sessions.length - 1];
+                String[] sessionData = lastSessionMessage.split("\\|");
+                if (sessionData.length > 1) {
+                    String[] sessionIdsArray = sessionData[1].split(",");
+                    Set<String> newSessionIds = Set.of(sessionIdsArray);
+                    sessionIds.addAll(newSessionIds);
+                }
+            }
+            case "111" -> {
+                String[] data = tokens[1].split(",");
+                sessionIds.remove(data[0]);
+            }
+            case "113" -> SwingUtilities.invokeLater(() -> {
+                System.out.println("Game starting...");
+                try {
+                    String role = tokens[1].equals("0") ? "tagger" : "normal";
+                    Player player = new Player(
+                            Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
+                    );
+                    screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
+                    System.out.println("Map screen added successfully.");
+                    stateManager.sendServerRequest(message, () -> {
+                        stateManager.switchTo("Map");
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // 오류 출력
+                }
             });
-          }
+            default -> System.out.println("Unhandled message type: " + type);
         }
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    });
-    thread.start();
+      SwingUtilities.invokeLater(() -> listPanel.updateSessionList(sessionIds));
+    }
   }
 }
