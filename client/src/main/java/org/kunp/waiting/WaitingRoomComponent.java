@@ -7,10 +7,12 @@ import org.kunp.inner.InnerWaitingRoomComponent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 
 
 public class WaitingRoomComponent extends JPanel {
-    public WaitingRoomComponent(String sessionId, String roomName, StateManager stateManager, ScreenManager screenManager, ServerCommunicator serverCommunicator) {
+    public WaitingRoomComponent(String sessionId, String roomName, StateManager stateManager, ScreenManager screenManager, ServerCommunicator serverCommunicator, BufferedReader in, PrintWriter out) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         setPreferredSize(new Dimension(350, 70));
@@ -30,7 +32,7 @@ public class WaitingRoomComponent extends JPanel {
         enterButton.addActionListener(e -> {
             String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
             // InnerWaitingRoom 화면 (추가된 컴포넌트)
-            screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, roomName));
+            screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
             stateManager.sendServerRequest(message, () -> {
                 stateManager.switchTo("InnerWaitingRoom");
             });

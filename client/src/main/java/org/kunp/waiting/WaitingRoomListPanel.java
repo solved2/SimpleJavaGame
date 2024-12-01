@@ -6,12 +6,14 @@ import org.kunp.StateManager;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class WaitingRoomListPanel extends JPanel {
-    public WaitingRoomListPanel(String sessionId, StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager) {
+    public WaitingRoomListPanel(String sessionId, StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, BufferedReader in, PrintWriter out) {
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("대기실 목록"));
 
@@ -38,7 +40,7 @@ public class WaitingRoomListPanel extends JPanel {
                 if(roomData[0].equals("112")){
                     if(roomData.length > 1) {
                         Arrays.stream(roomData[1].split(","))
-                                .map(el -> new WaitingRoomComponent(sessionId, el, stateManager, screenManager, serverCommunicator))
+                                .map(el -> new WaitingRoomComponent(sessionId, el, stateManager, screenManager, serverCommunicator, in, out))
                                 .forEach(rooms::add);
                     }
                 }

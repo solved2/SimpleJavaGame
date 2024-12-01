@@ -36,15 +36,6 @@ public class StateManager {
     public void addMessageListener(ServerCommunicator.ServerMessageListener listener) {
         serverCommunicator.addMessageListener(listener);
     }
-
-    public void removeMessageListener(ServerCommunicator.ServerMessageListener listener) {
-        serverCommunicator.removeMessageListener(listener);
-    }
-
-    public void fetchRoomList(Runnable onSuccess) {
-        String request = "100|" + sessionId + "|null|0|0|1";  // 대기실 목록을 요청하는 메시지
-        sendServerRequest(request, onSuccess);
-    }
 }
 
 

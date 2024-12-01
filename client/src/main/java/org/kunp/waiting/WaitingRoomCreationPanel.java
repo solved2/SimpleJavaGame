@@ -6,13 +6,15 @@ import org.kunp.StateManager;
 import org.kunp.inner.InnerWaitingRoomComponent;
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 
 public class WaitingRoomCreationPanel extends JPanel {
     private final JTextField roomNameField;
     private final JTextField timeLimitField;
     private final JTextField playerLimitField;
 
-    public WaitingRoomCreationPanel(StateManager stateManager, ScreenManager screenManager, ServerCommunicator serverCommunicator) {
+    public WaitingRoomCreationPanel(StateManager stateManager, ScreenManager screenManager, ServerCommunicator serverCommunicator, BufferedReader in, PrintWriter out) {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(350, 150));
 
@@ -75,7 +77,7 @@ public class WaitingRoomCreationPanel extends JPanel {
                         stateManager.sendServerRequest(message, () -> {});
 
                         message = String.format("101|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
-                        screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, roomName));
+                        screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in ,out));
                         stateManager.sendServerRequest(message, () -> {
                             stateManager.switchTo("InnerWaitingRoom");
                         });

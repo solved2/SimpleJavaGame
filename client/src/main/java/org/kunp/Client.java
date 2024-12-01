@@ -62,8 +62,8 @@ public class Client {
     private void registerScreens(String sessionId, ScreenManager screenManager, StateManager stateManager, ServerCommunicator serverCommunicator) {
         // 대기실 화면
         JPanel waitingRoomPanel = new JPanel(new BorderLayout());
-        waitingRoomPanel.add(new WaitingRoomListPanel(sessionId, stateManager, serverCommunicator, screenManager), BorderLayout.CENTER);
-        waitingRoomPanel.add(new WaitingRoomCreationPanel(stateManager, screenManager, serverCommunicator), BorderLayout.SOUTH);
+        waitingRoomPanel.add(new WaitingRoomListPanel(sessionId, stateManager, serverCommunicator, screenManager, in, out), BorderLayout.CENTER);
+        waitingRoomPanel.add(new WaitingRoomCreationPanel(stateManager, screenManager, serverCommunicator, in, out), BorderLayout.SOUTH);
         screenManager.addScreen("WaitingRoom", waitingRoomPanel);
 
         // Map 화면 (게임 화면)
