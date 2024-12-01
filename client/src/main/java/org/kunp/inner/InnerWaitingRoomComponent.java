@@ -5,6 +5,7 @@ import org.kunp.StateManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +30,6 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     // 메시지 리스너 등록
     ServerCommunicator.ServerMessageListener listener = message -> {
-      System.out.println("inner message");
       handleServerMessage(stateManager, message, sessionIds, listPanel);
     };
 
@@ -41,19 +41,22 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     if (tokens.length > 1) {
       String type = tokens[0];
-      System.out.println(type);
       if (type.equals("110")) {
         String[] sessions = message.split("\n");
         String lastSessionMessage = sessions[sessions.length - 1];
         String[] sessionData = lastSessionMessage.split("\\|");
         if (sessionData.length > 1) {
-          sessionIds.clear();
           String[] sessionIdsArray = sessionData[1].split(",");
-          sessionIds.addAll(Set.of(sessionIdsArray));
+          System.out.println("Incoming session IDs: " + Arrays.toString(sessionIdsArray));
+
+          // 기존 sessionIds에 새롭게 들어온 사용자 추가
+          Set<String> newSessionIds = Set.of(sessionIdsArray);
+          sessionIds.addAll(newSessionIds);
         }
       }
       else if (type.equals("111")) { // 사용자 퇴장
         String[] data = tokens[1].split(",");
+        System.out.println(data[0]);
         sessionIds.remove(data[0]);
       } else if (type.equals("113")) { // 게임 시작
         stateManager.switchTo("Map");
@@ -64,7 +67,4 @@ public class InnerWaitingRoomComponent extends JPanel {
       SwingUtilities.invokeLater(() -> listPanel.updateSessionList(sessionIds));
     }
   }
-
 }
-
-

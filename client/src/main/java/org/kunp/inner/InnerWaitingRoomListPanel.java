@@ -22,10 +22,6 @@ public class InnerWaitingRoomListPanel extends JPanel {
     public void updateSessionList(Set<String> sessionIds) {
         gridPanel.removeAll();
 
-        if (sessionIds.size() % 2 != 0) {
-            sessionIds.add("대기 중"); // 임시 자리
-        }
-
         for (String id : sessionIds) {
             JPanel userPanel = new JPanel();
             userPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
