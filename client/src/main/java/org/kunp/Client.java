@@ -63,7 +63,7 @@ public class Client {
         // 대기실 화면
         JPanel waitingRoomPanel = new JPanel(new BorderLayout());
         waitingRoomPanel.add(new WaitingRoomListPanel(sessionId, stateManager, serverCommunicator, screenManager), BorderLayout.CENTER);
-        waitingRoomPanel.add(new WaitingRoomCreationPanel(stateManager), BorderLayout.SOUTH);
+        waitingRoomPanel.add(new WaitingRoomCreationPanel(stateManager, screenManager, serverCommunicator), BorderLayout.SOUTH);
         screenManager.addScreen("WaitingRoom", waitingRoomPanel);
 
         // Map 화면 (게임 화면)

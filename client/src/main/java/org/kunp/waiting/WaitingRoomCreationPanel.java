@@ -1,5 +1,7 @@
 package org.kunp.waiting;
 
+import org.kunp.ScreenManager;
+import org.kunp.ServerCommunicator;
 import org.kunp.StateManager;
 import org.kunp.inner.InnerWaitingRoomComponent;
 import javax.swing.*;
@@ -10,7 +12,7 @@ public class WaitingRoomCreationPanel extends JPanel {
     private final JTextField timeLimitField;
     private final JTextField playerLimitField;
 
-    public WaitingRoomCreationPanel(StateManager stateManager) {
+    public WaitingRoomCreationPanel(StateManager stateManager, ScreenManager screenManager, ServerCommunicator serverCommunicator) {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(350, 150));
 
@@ -70,6 +72,10 @@ public class WaitingRoomCreationPanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "입력 오류: 제한 시간과 인원을 확인하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else {
                         String message = String.format("102|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
+                        stateManager.sendServerRequest(message, () -> {});
+
+                        message = String.format("101|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
+                        screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, roomName));
                         stateManager.sendServerRequest(message, () -> {
                             stateManager.switchTo("InnerWaitingRoom");
                         });

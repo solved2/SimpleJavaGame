@@ -49,7 +49,6 @@ public class InnerWaitingRoomComponent extends JPanel {
           String[] sessionIdsArray = sessionData[1].split(",");
           System.out.println("Incoming session IDs: " + Arrays.toString(sessionIdsArray));
 
-          // 기존 sessionIds에 새롭게 들어온 사용자 추가
           Set<String> newSessionIds = Set.of(sessionIdsArray);
           sessionIds.addAll(newSessionIds);
         }
