@@ -8,12 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.kunp.Servlet.session.Session;
 
-//TODO : thread로 따로 빼기
 public class GameContext {
 
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
   private final Map<String, int[]> positions = new ConcurrentHashMap<>();
   private final Map<String, Integer> isChaser = new HashMap<>();
+  private final Set<String> toRemove = new HashSet<>();
+
   private final int gameId;
   private final AtomicBoolean isStarted = new AtomicBoolean(false);
   private final AtomicBoolean isFinished;
@@ -29,31 +30,32 @@ public class GameContext {
 
   public void updateContext(String sessionId, int x, int y, int roomId) {
     if (!isStarted.get()) return;
-    this.positions.putIfAbsent(sessionId, new int[3]);
+    this.positions.putIfAbsent(sessionId, new int[4]);
     this.positions.get(sessionId)[0] = x;
     this.positions.get(sessionId)[1] = y;
     this.positions.get(sessionId)[2] = roomId;
+    this.positions.get(sessionId)[3] = isChaser.getOrDefault(sessionId, 1);
   }
 
   public void updateAndBroadCast() {
-    for (OutputStream oos : participants.values()) {
+    for (Map.Entry<String, OutputStream> participant : participants.entrySet()) {
       try {
-        for(Map.Entry<String, int[]> entry : positions.entrySet()) {
+        OutputStream oos = participant.getValue();
+        for (Map.Entry<String, int[]> entry : positions.entrySet()) {
           oos.write(createMessage(210, entry.getValue(), entry.getKey(), this.gameId).getBytes());
           oos.flush();
         }
-      } catch (SocketException e) {
-        //participants.remove(oos);
       } catch (IOException e) {
-        //throw new RuntimeException(e);
+        toRemove.add(participant.getKey());
       }
     }
+    removeDisconnectedParticipants();
   }
 
   public void enter(Session session) {
     if(participants.containsKey(session.getSessionId())) return;
     participants.put(session.getSessionId(), (OutputStream) session.getAttributes().get("ops"));
-    positions.put(session.getSessionId(), new int[3]);
+    positions.put(session.getSessionId(), new int[4]);
   }
 
   public void leave(Session session) {
@@ -93,8 +95,7 @@ public class GameContext {
   }
 
   private String createMessage(int type, int[] position, String id, int gameId) {
-    return type + "|" + id + "|" + position[0] + "|" + position[1] + "|" + position[2] + "|" + gameId+
-    "\n";
+    return type + "|" + id + "|" + position[0] + "|" + position[1] + "|" + position[2] + "|" + gameId+ "|" + position[3] + "\n";
   }
 
   public void updateInteraction(String id, int roomNumber) throws IOException {
@@ -113,6 +114,22 @@ public class GameContext {
 
   private boolean isAvailable(int[] pos1, int[] pos2) {
     return pos1[0] - pos2[0] < 10 && pos1[1] - pos2[1] < 10;
+  }
+
+  private void removeDisconnectedParticipants() {
+    for (String key : toRemove) {
+      for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
+        try {
+          entry.getValue().write(String.format("214|%s\n", key).getBytes());
+          entry.getValue().flush();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        participants.remove(key);
+        positions.remove(key);
+      }
+    }
+    toRemove.clear();
   }
 }
 
