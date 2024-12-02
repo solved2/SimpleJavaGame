@@ -1,5 +1,9 @@
 package org.kunp.map;
 
+import org.kunp.ScreenManager;
+import org.kunp.ServerCommunicator;
+import org.kunp.StateManager;
+
 import java.io.PrintWriter;
 
 public class Player {
@@ -8,14 +12,16 @@ public class Player {
     private String sessionId;
     private int mapIdx;
     private PrintWriter out;
+    private ServerCommunicator serverCommunicator;
 
-    public Player(int startX, int startY, String role, PrintWriter out, String sessionId) {
+    public Player(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, int startX, int startY, String role, PrintWriter out, String sessionId) {
         this.x = startX;
         this.y = startY;
         this.role = role;
         this.out = out;
         this.sessionId = sessionId;
         this.mapIdx = 5;
+        this.serverCommunicator = serverCommunicator;
     }
 
     public int getX() {
@@ -41,19 +47,16 @@ public class Player {
         x += dx;
         y += dy;
         sendLocation();
-        //System.out.println("("+x+","+y+")");
     }
 
     public void sendInteraction(){
-        String message = String.format("202|%s|%d|%d|%d|1", sessionId, x, y, mapIdx);
-        out.println(message);
-        out.flush();
+        String requestMessage = String.format("202|%s|%s|%d|%d|1", sessionId, x, y, mapIdx);
+        serverCommunicator.sendRequest(requestMessage);
     }
 
     private void sendLocation() {
-        String message = String.format("201|%s|%d|%d|%d|1", sessionId, x, y, mapIdx);
-        out.println(message);
-        out.flush();
+        String requestMessage = String.format("201|%s|%s|%d|%d|1", sessionId, x, y, mapIdx);
+        serverCommunicator.sendRequest(requestMessage);
     }
 }
 

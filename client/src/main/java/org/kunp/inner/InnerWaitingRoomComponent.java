@@ -33,15 +33,15 @@ public class InnerWaitingRoomComponent extends JPanel {
 
     // 메시지 리스너 등록
     ServerCommunicator.ServerMessageListener listener = message -> {
-      handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, screenManager);
+      handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, serverCommunicator, screenManager);
     };
 
     stateManager.addMessageListener(listener);
   }
 
-  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager, ScreenManager screenManager) {
+  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager,  ServerCommunicator serverCommunicator, ScreenManager screenManager) {
     String[] tokens = message.split("\\|");
-    System.out.println(message);
+    //System.out.println(message);
 
     if (tokens.length > 1) {
       String type = tokens[0];
@@ -64,19 +64,17 @@ public class InnerWaitingRoomComponent extends JPanel {
                 System.out.println("Game starting...");
                 try {
                     String role = tokens[1].equals("0") ? "tagger" : "normal";
-                    Player player = new Player(
+                    Player player = new Player(stateManager, serverCommunicator, screenManager,
                             Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
                     );
-                    screenManager.addScreen("Map", new Map(in, out, player, stateManager.getSessionId()));
+                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId()));
                     System.out.println("Map screen added successfully.");
-                    stateManager.sendServerRequest(message, () -> {
-                        stateManager.switchTo("Map");
-                    });
+                    stateManager.switchTo("Map");
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 오류 출력
                 }
             });
-            default -> System.out.println("Unhandled message type: " + type);
+            //default -> System.out.println("Unhandled message type: " + type);
         }
       SwingUtilities.invokeLater(() -> listPanel.updateSessionList(sessionIds));
     }

@@ -1,10 +1,18 @@
 package org.kunp.map;
 
+import org.kunp.ScreenManager;
+import org.kunp.ServerCommunicator;
+import org.kunp.StateManager;
+import org.kunp.inner.InnerWaitingRoomListPanel;
+import org.kunp.waiting.WaitingRoomComponent;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Set;
 
 public class Map extends JPanel {
     private MapPanel[][] maps;
@@ -12,14 +20,10 @@ public class Map extends JPanel {
     private final Player player;
     private final boolean[] keysPressed = new boolean[256];
     private final Timer moveTimer;
-    private final BufferedReader in;
-    private final PrintWriter out;
     private final String sessionId;
     private final HashMap<String, Location> locations = new HashMap<>();
 
-    public Map(BufferedReader in, PrintWriter out, Player player, String sessionId) {
-        this.in = in;
-        this.out = out;
+    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId) {
         this.player = player;
         this.sessionId = sessionId;
 
@@ -52,10 +56,36 @@ public class Map extends JPanel {
 
         moveTimer = new Timer(50, e -> checkKeyboardInput());
         moveTimer.start();
-        requestFocusInWindow();
 
-        LocationSyncThread lst = new LocationSyncThread(in);
-        lst.start();
+        serverCommunicator.addMessageListener(message -> {
+            String[] tokens = message.split("\\|");
+            String type = tokens[0];
+            if(type.equals("210") || type.equals("211") || type.equals("212")){
+                String mover_sessionId = tokens[1];
+                int x = Integer.parseInt(tokens[2]), y = Integer.parseInt(tokens[3]);
+                int mapIdx = Integer.parseInt(tokens[4]);
+                synchronized (locations){
+                    if(!locations.containsKey(mover_sessionId)) locations.put(mover_sessionId, new Location(mapIdx, x, y));
+                    else locations.get(mover_sessionId).setLocation(mapIdx, x, y);
+                }
+                repaint();
+            }
+        });
+
+        // 포커스 요청
+        SwingUtilities.invokeLater(() -> {
+            if (!requestFocusInWindow()) {
+                Timer focusRetryTimer = new Timer(100, evt -> {
+                    if (isFocusOwner() || requestFocusInWindow()) {
+                        ((Timer) evt.getSource()).stop(); // 성공하면 타이머 중지
+                        System.out.println("Focus successfully set on Map.");
+                    }
+                });
+                focusRetryTimer.start();
+            } else {
+                System.out.println("Focus successfully set on Map.");
+            }
+        });
     }
 
     private void initializeMapPanels() {
@@ -83,6 +113,7 @@ public class Map extends JPanel {
     }
 
     private void movePlayer(int keyCode) {
+        System.out.println("key identified");
         int newX = player.getX(), newY = player.getY();
         int xx = 0, yy = 0;
         switch (keyCode) {
@@ -132,35 +163,5 @@ public class Map extends JPanel {
         add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
         revalidate();
         requestFocusInWindow();
-    }
-
-    private class LocationSyncThread extends Thread{
-        private BufferedReader in = null;
-        public LocationSyncThread(BufferedReader in){
-            this.in = in;
-        }
-        public void run(){
-            try {
-                String line = null;
-                while ((line = in.readLine()) != null) {
-                    System.out.println(line);
-                    String[] parts = line.split("\\|");
-                    String sessionId = parts[1];
-                    int x = Integer.parseInt(parts[2]);
-                    int y = Integer.parseInt(parts[3]);
-                    int roomNumber = Integer.parseInt(parts[4]);
-                    synchronized (locations){
-                        if(!locations.containsKey(sessionId)) locations.put(sessionId, new Location(roomNumber, x, y));
-                        else locations.get(sessionId).setLocation(roomNumber, x, y);
-                    }
-                    repaint();
-                }
-            }catch(Exception ex){
-            }finally{
-                try{
-                    if(in != null) in.close();
-                }catch(Exception ex){}
-            }
-        }
     }
 }
