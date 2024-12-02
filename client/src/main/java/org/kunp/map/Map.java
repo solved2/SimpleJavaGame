@@ -56,7 +56,6 @@ public class Map extends JPanel {
 
         moveTimer = new Timer(50, e -> checkKeyboardInput());
         moveTimer.start();
-        requestFocusInWindow();
 
         serverCommunicator.addMessageListener(message -> {
             String[] tokens = message.split("\\|");
@@ -70,6 +69,21 @@ public class Map extends JPanel {
                     else locations.get(mover_sessionId).setLocation(mapIdx, x, y);
                 }
                 repaint();
+            }
+        });
+
+        // 포커스 요청
+        SwingUtilities.invokeLater(() -> {
+            if (!requestFocusInWindow()) {
+                Timer focusRetryTimer = new Timer(100, evt -> {
+                    if (isFocusOwner() || requestFocusInWindow()) {
+                        ((Timer) evt.getSource()).stop(); // 성공하면 타이머 중지
+                        System.out.println("Focus successfully set on Map.");
+                    }
+                });
+                focusRetryTimer.start();
+            } else {
+                System.out.println("Focus successfully set on Map.");
             }
         });
     }

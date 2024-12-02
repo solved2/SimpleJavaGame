@@ -67,26 +67,9 @@ public class InnerWaitingRoomComponent extends JPanel {
                     Player player = new Player(stateManager, serverCommunicator, screenManager,
                             Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
                     );
-                    // Map 화면 생성 및 추가
-                    Map map = new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId());
-                    screenManager.addScreen("Map", map);
+                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId()));
                     System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
-
-                    // 포커스를 강제로 요청
-                    SwingUtilities.invokeLater(() -> {
-                        if (!map.requestFocusInWindow()) {
-                            Timer focusRetryTimer = new Timer(100, e -> {
-                                if (map.requestFocusInWindow()) {
-                                    ((Timer) e.getSource()).stop(); // 성공하면 타이머 중지
-                                    System.out.println("Map focus successfully set.");
-                                } else {
-                                    System.out.println("Retrying focus on Map...");
-                                }
-                            });
-                            focusRetryTimer.start();
-                        }
-                    });
                 } catch (Exception ex) {
                     ex.printStackTrace(); // 오류 출력
                 }
