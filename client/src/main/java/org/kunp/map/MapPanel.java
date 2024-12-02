@@ -28,7 +28,7 @@ public class MapPanel extends JPanel {
         List<Integer> numbers = new ArrayList<>();
         for (int i = 20; i <= 470; i += 10) numbers.add(i);
 
-        Random random = new Random();
+        Random random = new Random(3*mapX+mapY);
         List<int[]> locs = new ArrayList<>();
         while (locs.size() < Constants.NUM_ROCKS) {
             int x = numbers.get(random.nextInt(numbers.size()));

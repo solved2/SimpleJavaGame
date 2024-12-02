@@ -1,6 +1,7 @@
 package org.kunp;
 
 import org.kunp.inner.InnerWaitingRoomComponent;
+import org.kunp.map.Constants;
 import org.kunp.waiting.WaitingRoomCreationPanel;
 import org.kunp.waiting.WaitingRoomListPanel;
 
@@ -41,8 +42,14 @@ public class Client {
         // 프레임 설정
         JFrame frame = new JFrame("Tag Game - 대기실");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 500); // 화면 크기
+        frame.setPreferredSize(new Dimension(500, 500));
+        frame.setSize(500, 500); // 화면 크기
+        frame.pack();
         frame.setLayout(new BorderLayout());
+        Insets insets = frame.getInsets();
+        int width = 500 + insets.left + insets.right;
+        int height = 500 + insets.top + insets.bottom;
+        frame.setSize(width, height);
 
         // 화면 등록
         registerScreens(sessionId, screenManager, stateManager, serverCommunicator);

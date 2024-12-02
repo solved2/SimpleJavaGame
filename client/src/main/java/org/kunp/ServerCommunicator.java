@@ -24,7 +24,7 @@ public class ServerCommunicator {
             try {
                 String message;
                 while ((message = in.readLine()) != null) {
-                    System.out.println(message);
+                    //System.out.println(message);
                     notifyListeners(message);
                 }
             } catch (IOException e) {
