@@ -67,7 +67,7 @@ public class InnerWaitingRoomComponent extends JPanel {
                     Player player = new Player(stateManager, serverCommunicator, screenManager,
                             Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
                     );
-                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId()));
+                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out));
                     System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
                 } catch (Exception ex) {

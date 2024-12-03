@@ -1,7 +1,6 @@
 package org.kunp;
 
-import org.kunp.inner.InnerWaitingRoomComponent;
-import org.kunp.map.Constants;
+import org.kunp.result.ResultComponent;
 import org.kunp.waiting.WaitingRoomCreationPanel;
 import org.kunp.waiting.WaitingRoomListPanel;
 
