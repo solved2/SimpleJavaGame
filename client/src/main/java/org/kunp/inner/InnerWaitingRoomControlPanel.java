@@ -29,13 +29,13 @@ public class InnerWaitingRoomControlPanel extends JPanel {
 
         // 게임 시작 버튼
         startGameButton.addActionListener(e -> {
-            String message = String.format("105|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, 0, 0);
+            String message = String.format("105|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
             serverCommunicator.sendRequest(message);
         });
 
         // 나가기 버튼
         exitButton.addActionListener(e -> {
-            String message = String.format("103|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, 0, 0);
+            String message = String.format("103|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
             stateManager.sendServerRequest(message, () -> {
                 stateManager.switchTo("WaitingRoom");
             });

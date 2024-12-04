@@ -50,12 +50,12 @@ public class Player {
     }
 
     public void sendInteraction(){
-        String requestMessage = String.format("202|%s|%s|%d|%d|1", sessionId, x, y, mapIdx);
+        String requestMessage = String.format("202|%s|%s|%d|%d", sessionId, x, y, mapIdx);
         serverCommunicator.sendRequest(requestMessage);
     }
 
     private void sendLocation() {
-        String requestMessage = String.format("201|%s|%s|%d|%d|1", sessionId, x, y, mapIdx);
+        String requestMessage = String.format("201|%s|%s|%d|%d", sessionId, x, y, mapIdx);
         serverCommunicator.sendRequest(requestMessage);
     }
 }

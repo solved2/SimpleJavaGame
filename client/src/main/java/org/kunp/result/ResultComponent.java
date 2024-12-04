@@ -40,7 +40,7 @@ public class ResultComponent extends JPanel {
         add(resultPanel, BorderLayout.CENTER);
 
         returnButton.addActionListener(e -> {
-          String message = String.format("101|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, 0, 0);
+          String message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
           String[] tokens = message.split("\\|");
           if (tokens.length > 0) {
             if (tokens[0].equals("110")) {

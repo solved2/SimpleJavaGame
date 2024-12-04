@@ -73,10 +73,10 @@ public class WaitingRoomCreationPanel extends JPanel {
                     if (timeLimit <= 0 || playerLimit < 2 || playerLimit > 8 || playerLimit % 2 != 0 || roomName.contains(",")) {
                         JOptionPane.showMessageDialog(this, "입력 오류: 제한 시간과 인원을 확인하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
                     } else {
-                        String message = String.format("102|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
+                        String message = String.format("102|%s|%s|%d|%d", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
                         stateManager.sendServerRequest(message, () -> {});
 
-                        message = String.format("101|%s|%s|%d|%d|1", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
+                        message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, timeLimit, playerLimit);
                         screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in ,out));
                         stateManager.sendServerRequest(message, () -> {
                             stateManager.switchTo("InnerWaitingRoom");
