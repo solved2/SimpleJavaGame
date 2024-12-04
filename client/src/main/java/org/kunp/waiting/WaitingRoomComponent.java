@@ -30,7 +30,7 @@ public class WaitingRoomComponent extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
 
         enterButton.addActionListener(e -> {
-            String message = String.format("101|%s|%s|%d|%d|1", sessionId, roomName, 0, 0);
+            String message = String.format("101|%s|%s|%d|%d", sessionId, roomName, 0, 0);
             // InnerWaitingRoom 화면 (추가된 컴포넌트)
             screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
             stateManager.sendServerRequest(message, () -> {

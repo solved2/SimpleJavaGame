@@ -3,16 +3,13 @@ package org.kunp.map;
 import org.kunp.ScreenManager;
 import org.kunp.ServerCommunicator;
 import org.kunp.StateManager;
-import org.kunp.inner.InnerWaitingRoomListPanel;
-import org.kunp.waiting.WaitingRoomComponent;
+import org.kunp.result.ResultComponent;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Set;
 
 public class Map extends JPanel {
     private MapPanel[][] maps;
@@ -23,7 +20,7 @@ public class Map extends JPanel {
     private final String sessionId;
     private final HashMap<String, Location> locations = new HashMap<>();
 
-    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId) {
+    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId, BufferedReader in, PrintWriter out) {
         this.player = player;
         this.sessionId = sessionId;
 
@@ -69,6 +66,13 @@ public class Map extends JPanel {
                     else locations.get(mover_sessionId).setLocation(mapIdx, x, y);
                 }
                 repaint();
+            }else if(type.equals("213")){
+                String gameId = tokens[1];
+                String result = Integer.parseInt(tokens[2]) == 1 ? "도망자 승리" : "술래 승리";
+                screenManager.addScreen("Result", new ResultComponent(stateManager, serverCommunicator, screenManager,result, gameId, in, out));
+                SwingUtilities.invokeLater(() -> {
+                    stateManager.switchTo("Result");
+                });
             }
         });
 
