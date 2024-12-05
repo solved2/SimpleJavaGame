@@ -58,12 +58,14 @@ public class Map extends JPanel {
             String[] tokens = message.split("\\|");
             String type = tokens[0];
             if(type.equals("210") || type.equals("211") || type.equals("212")){
+                System.out.println(message);
                 String mover_sessionId = tokens[1];
                 int x = Integer.parseInt(tokens[2]), y = Integer.parseInt(tokens[3]);
                 int mapIdx = Integer.parseInt(tokens[4]);
+                int role = Integer.parseInt(tokens[6]);
                 synchronized (locations){
-                    if(!locations.containsKey(mover_sessionId)) locations.put(mover_sessionId, new Location(mapIdx, x, y));
-                    else locations.get(mover_sessionId).setLocation(mapIdx, x, y);
+                    if(!locations.containsKey(mover_sessionId)) locations.put(mover_sessionId, new Location(role, mapIdx, x, y));
+                    else locations.get(mover_sessionId).setLocation(role, mapIdx, x, y);
                 }
                 repaint();
             }else if(type.equals("213")){
@@ -73,6 +75,11 @@ public class Map extends JPanel {
                 SwingUtilities.invokeLater(() -> {
                     stateManager.switchTo("Result");
                 });
+            }else if(type.equals("214")){
+                String disconnectedSessionId = tokens[1];
+                synchronized (locations){
+                    locations.remove(disconnectedSessionId);
+                }
             }
         });
 
@@ -117,7 +124,6 @@ public class Map extends JPanel {
     }
 
     private void movePlayer(int keyCode) {
-        System.out.println("key identified");
         int newX = player.getX(), newY = player.getY();
         int xx = 0, yy = 0;
         switch (keyCode) {

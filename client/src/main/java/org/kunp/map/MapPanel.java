@@ -117,7 +117,8 @@ public class MapPanel extends JPanel {
             while(iter.hasNext()){
                 Location loc = (Location) iter.next();
                 if(loc.getRoomNumber() == mapY * 3 + mapX + 1){
-                    g.drawImage(Constants.taggerImage, loc.getX(), loc.getY(), Constants.PLAYER_SIZE_X, Constants.PLAYER_SIZE_Y, null);
+                    if(loc.getRole() == 0) g.drawImage(Constants.taggerImage, loc.getX(), loc.getY(), Constants.PLAYER_SIZE_X, Constants.PLAYER_SIZE_Y, null);
+                    else g.drawImage(Constants.runawayImage, loc.getX(), loc.getY(), Constants.PLAYER_SIZE_X, Constants.PLAYER_SIZE_Y, null);
                 }
             }
         }
