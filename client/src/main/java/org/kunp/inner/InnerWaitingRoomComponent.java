@@ -63,11 +63,12 @@ public class InnerWaitingRoomComponent extends JPanel {
             case "113" -> SwingUtilities.invokeLater(() -> {
                 System.out.println("Game starting...");
                 try {
-                    String role = tokens[1].equals("0") ? "tagger" : "normal";
+                    int gameId = Integer.parseInt(tokens[1]);
+                    String role = tokens[2].equals("0") ? "tagger" : "normal";
                     Player player = new Player(stateManager, serverCommunicator, screenManager,
-                            Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), role, out, stateManager.getSessionId()
+                            Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, stateManager.getSessionId(), gameId
                     );
-                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out));
+                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId));
                     System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
                 } catch (Exception ex) {

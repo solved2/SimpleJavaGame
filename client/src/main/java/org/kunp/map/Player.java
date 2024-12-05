@@ -13,8 +13,9 @@ public class Player {
     private int mapIdx;
     private PrintWriter out;
     private ServerCommunicator serverCommunicator;
+    private int gameId;
 
-    public Player(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, int startX, int startY, String role, PrintWriter out, String sessionId) {
+    public Player(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, int startX, int startY, String role, PrintWriter out, String sessionId, int gameId) {
         this.x = startX;
         this.y = startY;
         this.role = role;
@@ -22,6 +23,7 @@ public class Player {
         this.sessionId = sessionId;
         this.mapIdx = 5;
         this.serverCommunicator = serverCommunicator;
+        this.gameId = gameId;
     }
 
     public int getX() {
@@ -50,12 +52,12 @@ public class Player {
     }
 
     public void sendInteraction(){
-        String requestMessage = String.format("202|%s|%s|%d|%d", sessionId, x, y, mapIdx);
+        String requestMessage = String.format("202|%s|%s|%d|%d|%d", sessionId, x, y, mapIdx, gameId);
         serverCommunicator.sendRequest(requestMessage);
     }
 
     private void sendLocation() {
-        String requestMessage = String.format("201|%s|%s|%d|%d", sessionId, x, y, mapIdx);
+        String requestMessage = String.format("201|%s|%s|%d|%d|%d", sessionId, x, y, mapIdx, gameId);
         serverCommunicator.sendRequest(requestMessage);
     }
 }
