@@ -10,11 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameContextRegistry {
 
   private static GameContextRegistry registry;
-  private int gameId = 1;
+  private AtomicInteger gameId = new AtomicInteger(1);
   private final Map<Integer, GameContext> gameContexts = new ConcurrentHashMap<>();
   private final ExecutorService gameThreadPool = Executors.newFixedThreadPool(5);
 
@@ -28,7 +29,7 @@ public class GameContextRegistry {
 
   // Game Context Method
   public int createGameContext(String roomName, String hostId) {
-    int roomNumber = this.gameId++;
+    int roomNumber = gameId.getAndAdd(1);
     GameContext gc = new GameContext(roomNumber, new AtomicBoolean(false));
     registerGameContext(roomNumber, gc);
     return roomNumber;

@@ -77,7 +77,7 @@ public class GameContext {
     setChaser(chaser2);
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       try {
-        entry.getValue().write(String.format("113|%d|%d|%d\n", isChaser.getOrDefault(entry.getKey(), 1), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
+        entry.getValue().write(String.format("113|%d|%d|%d|%d\n", gameId, isChaser.getOrDefault(entry.getKey(), 1), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
         entry.getValue().flush();
       } catch (IOException e) {
         throw new RuntimeException(e);
