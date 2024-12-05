@@ -19,10 +19,12 @@ public class Map extends JPanel {
     private final Timer moveTimer;
     private final String sessionId;
     private final HashMap<String, Location> locations = new HashMap<>();
+    private final int gameId;
 
-    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId, BufferedReader in, PrintWriter out) {
+    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId, BufferedReader in, PrintWriter out, int gameId) {
         this.player = player;
         this.sessionId = sessionId;
+        this.gameId = gameId;
 
         setPreferredSize(new Dimension(Constants.MAP_SIZE, Constants.MAP_SIZE));
         setFocusable(true);
@@ -58,7 +60,6 @@ public class Map extends JPanel {
             String[] tokens = message.split("\\|");
             String type = tokens[0];
             if(type.equals("210") || type.equals("211") || type.equals("212")){
-                System.out.println(message);
                 String mover_sessionId = tokens[1];
                 int x = Integer.parseInt(tokens[2]), y = Integer.parseInt(tokens[3]);
                 int mapIdx = Integer.parseInt(tokens[4]);
@@ -69,9 +70,9 @@ public class Map extends JPanel {
                 }
                 repaint();
             }else if(type.equals("213")){
-                String gameId = tokens[1];
+                String overed_gameId = tokens[1];
                 String result = Integer.parseInt(tokens[2]) == 1 ? "도망자 승리" : "술래 승리";
-                screenManager.addScreen("Result", new ResultComponent(stateManager, serverCommunicator, screenManager,result, gameId, in, out));
+                screenManager.addScreen("Result", new ResultComponent(stateManager, serverCommunicator, screenManager,result, overed_gameId, in, out));
                 SwingUtilities.invokeLater(() -> {
                     stateManager.switchTo("Result");
                 });
