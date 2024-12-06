@@ -14,8 +14,8 @@ public class WaitingRoomContext {
 
   private final String roomName;
   private final String hostId;
-  private final int userlimit;
-  private final int timelimit;
+  private final int userLimit;
+  private final int timeLimit;
 
   public WaitingRoomContext(String roomName, String hostId, int userLimit, int timeLimit) {
     // 방 이름 검증
@@ -24,15 +24,15 @@ public class WaitingRoomContext {
     }
     this.roomName = roomName;
     this.hostId = hostId;
-    this.userlimit = userLimit;
-    this.timelimit = timeLimit;
+    this.userLimit = userLimit;
+    this.timeLimit = timeLimit;
   }
 
   // 110번: 입장 메세지
   public synchronized void enter(Session session) throws IOException {
     if (participants.containsKey(session.getSessionId())) return;
 
-    if (participants.size() >= userlimit) {
+    if (participants.size() >= userLimit) {
       throw new IllegalStateException("Room is full. User cannot join.");
     }
 
@@ -78,15 +78,15 @@ public class WaitingRoomContext {
   }
 
   public int getUserLimit() {
-    return userlimit;
+    return userLimit;
   }
 
   public int getTimeLimit() {
-    return timelimit;
+    return timeLimit;
   }
 
   // 게임 초기화
   public void initGame(Session session) {
-    GameRequestHandler.getInstance().createGameContextAndJoinAll(roomName, session, participants, userlimit, timelimit);
+    GameRequestHandler.getInstance().createGameContextAndJoinAll(roomName, session, participants, userLimit, timeLimit);
   }
 }

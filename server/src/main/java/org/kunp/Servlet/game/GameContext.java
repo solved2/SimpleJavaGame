@@ -39,7 +39,7 @@ public class GameContext {
       try {
         System.out.println("Game timer started for " + timelimit + " seconds.");
         Thread.sleep(timelimit * 1000L); // timelimit in seconds
-        if (!isFinished.get()) {
+        if (!isFinished()) {
           System.out.println("Time limit reached. Game is finishing...");
           sendGameResult(false); // Default to runners winning if time runs out
         }
@@ -148,7 +148,6 @@ public class GameContext {
     int[] runnerPos = positions.get(id);
     if (runnerPos == null || playerStates.getOrDefault(id, false)) {
       // 감옥에 갇힌 경우 상호작용 불가.
-      sendMessage(participants.get(id), "You are in jail and cannot interact!\n");
       return;
     }
 
@@ -161,7 +160,6 @@ public class GameContext {
       if (targetPos != null && isNearJail(runnerPos, targetPos)) {
         // 감옥에 갇힌 도망자 풀어줌
         playerStates.put(targetId, false); // 상태 업데이트 (갇힌 상태 해제)
-        sendMessage(participants.get(targetId), "You have been freed from jail!\n");
 
         // 브로드캐스트: 도망자가 풀렸다
         String response = createFreedResponse(212, targetId, targetPos[0], targetPos[1], roomNumber, gameId);
@@ -222,12 +220,6 @@ public class GameContext {
 
   private String createFreedResponse(int type, String sessionId, int x, int y, int roomNumber, int gameId) {
     return String.format("%d|%s|%d|%d|%d|%d\n", type, sessionId, x, y, roomNumber, gameId);
-  }
-
-  private void sendMessage(OutputStream outputStream, String message) throws IOException {
-    if (outputStream == null) return;
-    outputStream.write(message.getBytes());
-    outputStream.flush();
   }
 
   private void sendMessageToAll(String message) {
