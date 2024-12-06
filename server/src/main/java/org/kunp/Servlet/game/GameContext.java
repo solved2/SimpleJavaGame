@@ -55,9 +55,7 @@ public class GameContext {
   public void updateContext(String sessionId, int x, int y, int roomId) {
     if (!isStarted.get()) return;
 
-    if (isTimeOut()){
-      isFinished.set(true);
-    }
+    determineWinner();
     // 감옥에 갇힌 상태라면 업데이트 차단
     if (playerStates.getOrDefault(sessionId, false)) {
       System.out.println("Player " + sessionId + " is in jail and cannot move.");
@@ -197,6 +195,35 @@ public class GameContext {
   private boolean isNearJail(int[] runnerPos, int[] jailPos) {
     // 감옥 근처에 있는지 확인 (거리가 10 이하일 경우 감옥 근처로 간주)
     return Math.abs(runnerPos[0] - jailPos[0]) < 10 && Math.abs(runnerPos[1] - jailPos[1]) < 10;
+  }
+
+  public void determineWinner() {
+    if (isTimeOut()) {
+      // 타임아웃이 된 경우, 도망자 승리
+      sendGameResult(false); // 기본적으로 도망자가 승리
+      System.out.println("Game time out. Runners win.");
+    } else {
+      boolean allChasersCaptured = true;
+      // 술래가 모든 도망자를 잡았는지 확인
+      for (Map.Entry<String, Boolean> entry : playerStates.entrySet()) {
+        String playerId = entry.getKey();
+        if (!entry.getValue() && isChaser.getOrDefault(playerId, 1) == 1) {
+          // 아직 잡히지 않은 도망자가 있는 경우
+          allChasersCaptured = false;
+          break;
+        }
+      }
+
+      if (allChasersCaptured) {
+        // 모든 도망자가 잡혔다면 술래가 승리
+        sendGameResult(true); // 술래가 승리
+        System.out.println("All runners captured. Chasers win.");
+      } else {
+        // 아직 도망자가 남아있으면 도망자가 승리
+        sendGameResult(false); // 도망자가 승리
+        System.out.println("Time is up, but some runners are still free. Runners win.");
+      }
+    }
   }
 
   public void sendGameResult(boolean chaserWon) {
