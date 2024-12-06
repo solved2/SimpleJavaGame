@@ -28,9 +28,9 @@ public class GameContextRegistry {
   }
 
   // Game Context Method
-  public int createGameContext(String roomName, String hostId) {
+  public int createGameContext(String roomName, String hostId, int userLimit, int timeLimit) {
     int roomNumber = gameId.getAndAdd(1);
-    GameContext gc = new GameContext(roomNumber, new AtomicBoolean(false));
+    GameContext gc = new GameContext(roomNumber, new AtomicBoolean(false), userLimit, timeLimit);
     registerGameContext(roomNumber, gc);
     return roomNumber;
   }

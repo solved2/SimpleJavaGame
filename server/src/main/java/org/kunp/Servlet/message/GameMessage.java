@@ -32,7 +32,18 @@ public class GameMessage extends Message implements Serializable {
     return gameId;
   }
 
+
   public static GameMessage of(String[] tokens) {
-    return new GameMessage(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]), Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), Integer.parseInt(tokens[5]));
+    if (tokens.length < 6) {
+      throw new IllegalArgumentException("Invalid tokens length. Expected 6 tokens.");
+    }
+    return new GameMessage(
+            Integer.parseInt(tokens[0]),   // type
+            tokens[1],                    // id
+            Integer.parseInt(tokens[2]),  // x
+            Integer.parseInt(tokens[3]),  // y
+            Integer.parseInt(tokens[4]),  // roomNumber
+            Integer.parseInt(tokens[5])   // gameId
+    );
   }
 }

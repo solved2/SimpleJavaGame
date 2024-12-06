@@ -1,6 +1,5 @@
 package org.kunp.Servlet.menu;
 
-import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.game.GameRequestHandler;
 import org.kunp.Servlet.session.Session;
 
@@ -9,38 +8,48 @@ import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import static org.kunp.Servlet.menu.WaitingRoomRegistry.getInstance;
 
 public class WaitingRoomContext {
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
 
   private final String roomName;
-  private String hostId;
-  private int roomNumber;
-  private int gameId;
+  private final String hostId;
+  private final int userLimit;
+  private final int timeLimit;
 
-  public WaitingRoomContext(String roomName, String hostId) {
+  public WaitingRoomContext(String roomName, String hostId, int userLimit, int timeLimit) {
+    // 방 이름 검증
+    if (roomName.contains(",")) {
+      throw new IllegalArgumentException("Room name cannot contain ','");
+    }
     this.roomName = roomName;
     this.hostId = hostId;
+    this.userLimit = userLimit;
+    this.timeLimit = timeLimit;
   }
 
-  //110번 : 입장 메세지
+  // 110번: 입장 메세지
   public synchronized void enter(Session session) throws IOException {
-    if(participants.containsKey(session.getSessionId())) return;
+    if (participants.containsKey(session.getSessionId())) return;
+
+    if (participants.size() >= userLimit) {
+      throw new IllegalStateException("Room is full. User cannot join.");
+    }
+
     OutputStream ops = (OutputStream) session.getAttributes().get("ops");
     participants.put(session.getSessionId(), ops);
 
+    // Broadcast to all participants
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
-      broadCast("110|%s|name|content|time\n".formatted(entry.getKey()));
+      broadCast("110|%s|%s|content|time\n".formatted(entry.getKey(), roomName));
     }
-    // send every user;
-    ops.write("110|%s|name|content|time\n".formatted(String.join(",", participants.keySet())).getBytes());
+
+    // Send updated participant list to the new user
+    ops.write("110|%s|%s|content|time\n".formatted(String.join(",", participants.keySet()), roomName).getBytes());
     ops.flush();
   }
 
-  //111번 : 퇴장 메세지
+  // 111번: 퇴장 메세지
   public synchronized void leave(Session session) {
     System.out.println("leave");
     broadCast("111|%s\n".formatted(session.getSessionId()));
@@ -50,12 +59,12 @@ public class WaitingRoomContext {
   public void broadCast(String message) {
     for (OutputStream oos : participants.values()) {
       try {
-          oos.write(message.getBytes());
-          oos.flush();
+        oos.write(message.getBytes());
+        oos.flush();
       } catch (SocketException e) {
-        //participants.remove(oos);
+        System.err.println("SocketException: " + e.getMessage());
       } catch (IOException e) {
-        //throw new RuntimeException(e);
+        System.err.println("IOException: " + e.getMessage());
       }
     }
   }
@@ -63,11 +72,21 @@ public class WaitingRoomContext {
   public boolean isHost(String sessionId) {
     return hostId.equals(sessionId);
   }
+
   public String getRoomName() {
     return roomName;
   }
 
+  public int getUserLimit() {
+    return userLimit;
+  }
+
+  public int getTimeLimit() {
+    return timeLimit;
+  }
+
+  // 게임 초기화
   public void initGame(Session session) {
-    GameRequestHandler.getInstance().createGameContextAndJoinAll(roomName, session, participants);
+    GameRequestHandler.getInstance().createGameContextAndJoinAll(roomName, session, participants, userLimit, timeLimit);
   }
 }

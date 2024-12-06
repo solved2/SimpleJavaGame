@@ -32,25 +32,25 @@ public class WaitingRoomRegistry {
   }
 
   // 대기방 입장
-  void enterWaitingRoom(Session session, String roomName) throws IOException {
-    waitingRooms.putIfAbsent(roomName, new WaitingRoomContext(roomName, session.getSessionId()));
+  void enterWaitingRoom(Session session, String roomName, int userLimit, int timeLimit) throws IOException {
+    waitingRooms.putIfAbsent(roomName, new WaitingRoomContext(roomName, session.getSessionId(), userLimit, timeLimit));
     WaitingRoomContext waitingRoom = waitingRooms.get(roomName);
     waitingRoom.enter(session);
   }
 
   // 대기방 퇴장
-  void leaveWaitingRoom(Session session, String roomName) {
+  void leaveWaitingRoom(Session session, String roomName, int userLimit, int timeLimit) {
     WaitingRoomContext waitingRoom = waitingRooms.get(roomName);
     waitingRoom.leave(session);
   }
 
   // 대기방 생성
-  void createWaitingRoom(Session session, String roomName) {
-    WaitingRoomContext waitingRoom = new WaitingRoomContext(roomName, session.getSessionId());
+  void createWaitingRoom(Session session, String roomName, int userLimit, int timeLimit) {
+    WaitingRoomContext waitingRoom = new WaitingRoomContext(roomName, session.getSessionId(), userLimit, timeLimit);
     waitingRooms.put(roomName, waitingRoom);
   }
 
-  public void startGame(Session session, String roomName) {
+  public void startGame(Session session, String roomName, int userLimit, int timeLimit) {
     if(!waitingRooms.get(roomName).isHost(session.getSessionId())) {
       return;
     }
