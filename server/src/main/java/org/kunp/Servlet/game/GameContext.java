@@ -3,6 +3,8 @@ package org.kunp.Servlet.game;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,6 +23,8 @@ public class GameContext {
   private final AtomicBoolean isFinished;
   private final int userlimit;
   private final int timelimit;
+  private LocalDateTime startTime;
+  private LocalDateTime endTime;
 
   public GameContext(int gameId, AtomicBoolean isFinished, int userlimit, int timelimit) {
     this.gameId = gameId;
@@ -30,23 +34,18 @@ public class GameContext {
   }
 
   public void startTimer() {
-    if (timelimit <= 0) {
-      System.out.println("No time limit set for this game.");
-      return;
-    }
+    startTime = LocalDateTime.now();  // 게임 시작 시간 기록
+    endTime = startTime.plusSeconds(timelimit);  // 게임 종료 시간 계산
+    System.out.println("Game started.");
+  }
 
-    new Thread(() -> {
-      try {
-        System.out.println("Game timer started for " + timelimit + " seconds.");
-        Thread.sleep(timelimit * 1000L); // timelimit in seconds
-        if (!isFinished()) {
-          System.out.println("Time limit reached. Game is finishing...");
-          sendGameResult(false); // Default to runners winning if time runs out
-        }
-      } catch (InterruptedException e) {
-        System.out.println("Game timer interrupted.");
-      }
-    }).start();
+  // 타임아웃 체크
+  public boolean isTimeOut() {
+    if (endTime != null) {
+      // 현재 시간이 종료 시간을 넘었는지 확인
+      return Duration.between(LocalDateTime.now(), endTime).isNegative();
+    }
+    return false;
   }
 
   public boolean isFinished() {
@@ -56,6 +55,9 @@ public class GameContext {
   public void updateContext(String sessionId, int x, int y, int roomId) {
     if (!isStarted.get()) return;
 
+    if (isTimeOut()){
+      isFinished.set(true);
+    }
     // 감옥에 갇힌 상태라면 업데이트 차단
     if (playerStates.getOrDefault(sessionId, false)) {
       System.out.println("Player " + sessionId + " is in jail and cannot move.");
