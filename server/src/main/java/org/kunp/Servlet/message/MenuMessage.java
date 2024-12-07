@@ -10,7 +10,7 @@ public class MenuMessage extends Message implements Serializable {
   private int roomNumber;
   private int gameId;
 
-  public MenuMessage(int type, String sessionId, String roomName, int userLimit, int timeLimit, int gameId) {
+  public MenuMessage(int type, String sessionId, String roomName, int userLimit, int timeLimit) {
     super(type, sessionId);
 
     // 방 이름에 "," 허용하지 않도록 검증
@@ -20,12 +20,11 @@ public class MenuMessage extends Message implements Serializable {
     this.roomName = roomName;
     this.userLimit = userLimit;
     this.timeLimit = timeLimit;
-    this.gameId = gameId;
   }
 
   // Factory 메서드: 문자열 배열로부터 객체 생성
   public static MenuMessage of(String[] tokens) {
-    if (tokens.length < 6) {
+    if (tokens.length < 5) {
       throw new IllegalArgumentException("Invalid number of tokens for MenuMessage");
     }
     return new MenuMessage(
@@ -33,8 +32,7 @@ public class MenuMessage extends Message implements Serializable {
             tokens[1],                  // sessionId
             tokens[2],                  // roomName
             Integer.parseInt(tokens[3]), // userLimit
-            Integer.parseInt(tokens[4]), // timeLimit
-            Integer.parseInt(tokens[5])  // gameId
+            Integer.parseInt(tokens[4]) // timeLimit
     );
   }
 

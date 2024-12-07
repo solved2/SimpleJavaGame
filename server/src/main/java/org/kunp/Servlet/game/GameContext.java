@@ -31,6 +31,7 @@ public class GameContext {
     this.isFinished = isFinished;
     this.timelimit = timelimit;
     this.userlimit = userlimit;
+    initializePlayerStates();
   }
 
   public void startTimer() {
@@ -52,8 +53,25 @@ public class GameContext {
     return this.isFinished.get();
   }
 
+  public void initializePlayerStates() {
+    for (String sessionId : participants.keySet()) {
+      // 모든 참가자 기본값 설정
+      isChaser.putIfAbsent(sessionId, 1); // 1 = 도망자
+      playerStates.putIfAbsent(sessionId, false); // false = 자유 상태
+    }
+  }
+
   public void updateContext(String sessionId, int x, int y, int roomId) {
-    if (!isStarted.get()) return;
+    if (!isStarted.get() || startTime == null) {
+      System.out.println("Game has not started or timer not initialized.");
+      return;
+    }
+
+    // 도망자 상태 초기화 확인
+    if (playerStates.isEmpty() || isChaser.isEmpty()) {
+      System.out.println("Player states or chaser states are not initialized.");
+      return;
+    }
 
     determineWinner();
     // 감옥에 갇힌 상태라면 업데이트 차단
@@ -203,28 +221,35 @@ public class GameContext {
       sendGameResult(false); // 기본적으로 도망자가 승리
       System.out.println("Game time out. Runners win.");
     } else {
-      boolean allChasersCaptured = true;
+      boolean allRunnersCaptured = true; // 변수 이름 변경: 더 명확한 의미 전달
+
       // 술래가 모든 도망자를 잡았는지 확인
       for (Map.Entry<String, Boolean> entry : playerStates.entrySet()) {
         String playerId = entry.getKey();
-        if (!entry.getValue() && isChaser.getOrDefault(playerId, 1) == 1) {
-          // 아직 잡히지 않은 도망자가 있는 경우
-          allChasersCaptured = false;
-          break;
+
+        // 플레이어가 도망자인지 확인하고 잡혔는지 검사
+        boolean isRunner = isChaser.getOrDefault(playerId, 0) == 0; // 기본값 0 = 도망자
+        boolean isCaptured = entry.getValue(); // true = 잡힘, false = 자유 상태
+
+        if (isRunner && !isCaptured) {
+          // 잡히지 않은 도망자가 있는 경우
+          allRunnersCaptured = false;
+          break; // 추가 검사 불필요, 즉시 탈출
         }
       }
 
-      if (allChasersCaptured) {
-        // 모든 도망자가 잡혔다면 술래가 승리
-        sendGameResult(true); // 술래가 승리
+      if (allRunnersCaptured) {
+        // 모든 도망자가 잡혔으면 술래가 승리
+        sendGameResult(true); // 술래 승리
         System.out.println("All runners captured. Chasers win.");
       } else {
-        // 아직 도망자가 남아있으면 도망자가 승리
-        sendGameResult(false); // 도망자가 승리
-        System.out.println("Time is up, but some runners are still free. Runners win.");
+        // 도망자가 남아있거나 게임 진행 중인 경우
+        System.out.println("Game continues. Not all runners are captured yet.");
       }
     }
+
   }
+
 
   public void sendGameResult(boolean chaserWon) {
     int win = chaserWon ? 0 : 1; // 0: 술래 승리, 1: 도망 승리
