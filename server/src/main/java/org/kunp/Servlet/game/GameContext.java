@@ -12,6 +12,10 @@ import org.kunp.Servlet.session.Session;
 
 public class GameContext {
 
+  private static final int JAIL_X = 0; // 감옥 x 좌표
+  private static final int JAIL_Y = 0; // 감옥 y 좌표
+  private static final int JAIL_ROOM_NUMBER = 1; // 감옥 roomNumber
+
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
   private final Map<String, int[]> positions = new ConcurrentHashMap<>();
   private final Map<String, Integer> isChaser = new HashMap<>();
@@ -29,9 +33,8 @@ public class GameContext {
   public GameContext(int gameId, AtomicBoolean isFinished, int userlimit, int timelimit) {
     this.gameId = gameId;
     this.isFinished = isFinished;
-    this.timelimit = timelimit;
     this.userlimit = userlimit;
-    initializePlayerStates();
+    this.timelimit = timelimit;
   }
 
   public void startTimer() {
@@ -115,6 +118,7 @@ public class GameContext {
   }
 
   public void setChasers() {
+    initializePlayerStates();
     List<String> keys = new ArrayList<>(participants.keySet());
     if (keys.size() < 2) {
       throw new IllegalStateException("Not enough participants to select two chasers");
@@ -200,19 +204,19 @@ public class GameContext {
 
       if (isAvailable(chaserPos, targetPos)) {
         // 도망자를 감옥으로 이동
-        positions.put(targetId, new int[]{100, 100, roomNumber}); // 감옥 위치 (예: {100, 100})
+        positions.put(targetId, new int[]{JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER}); // 감옥 위치
         playerStates.put(targetId, true); // 상태 업데이트 (갇힌 상태)
 
         // 브로드캐스트: 도망자가 잡혔다
-        String response = createCaughtResponse(211, targetId, 100, 100, roomNumber, gameId);
+        String response = createCaughtResponse(211, targetId, JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER, gameId);
         sendMessageToAll(response);
       }
     }
   }
 
   private boolean isNearJail(int[] runnerPos, int[] jailPos) {
-    // 감옥 근처에 있는지 확인 (거리가 10 이하일 경우 감옥 근처로 간주)
-    return Math.abs(runnerPos[0] - jailPos[0]) < 10 && Math.abs(runnerPos[1] - jailPos[1]) < 10;
+    // 감옥 근처에 있는지 확인 (JAIL_X, JAIL_Y 기준)
+    return Math.abs(runnerPos[0] - JAIL_X) < 10 && Math.abs(runnerPos[1] - JAIL_Y) < 10;
   }
 
   public void determineWinner() {
