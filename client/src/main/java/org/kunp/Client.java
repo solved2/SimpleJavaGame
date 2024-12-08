@@ -1,5 +1,8 @@
 package org.kunp;
 
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 import org.kunp.waiting.WaitingRoomCreationPanel;
 import org.kunp.waiting.WaitingRoomListPanel;
 

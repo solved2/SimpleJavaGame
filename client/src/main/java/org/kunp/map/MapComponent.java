@@ -1,8 +1,8 @@
 package org.kunp.map;
 
-import org.kunp.ScreenManager;
-import org.kunp.ServerCommunicator;
-import org.kunp.StateManager;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 import org.kunp.result.ResultComponent;
 
 import javax.swing.*;
@@ -11,17 +11,17 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.HashMap;
 
-public class Map extends JPanel {
-    private MapPanel[][] maps;
+public class MapComponent extends JPanel {
+    private MapComponentPanel[][] maps;
     private int currentMapX = 1, currentMapY = 1;
-    private final Player player;
+    private final PlayerComponent player;
     private final boolean[] keysPressed = new boolean[256];
     private final Timer moveTimer;
     private final String sessionId;
     private final HashMap<String, Location> locations = new HashMap<>();
     private final int gameId;
 
-    public Map(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, Player player, String sessionId, BufferedReader in, PrintWriter out, int gameId) {
+    public MapComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, PlayerComponent player, String sessionId, BufferedReader in, PrintWriter out, int gameId) {
         this.player = player;
         this.sessionId = sessionId;
         this.gameId = gameId;
@@ -102,10 +102,10 @@ public class Map extends JPanel {
     }
 
     private void initializeMapPanels() {
-        maps = new MapPanel[3][3];
+        maps = new MapComponentPanel[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                maps[i][j] = new MapPanel(i, j, locations);
+                maps[i][j] = new MapComponentPanel(i, j, locations);
             }
         }
 

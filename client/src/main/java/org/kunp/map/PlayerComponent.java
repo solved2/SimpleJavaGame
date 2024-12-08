@@ -1,12 +1,12 @@
 package org.kunp.map;
 
-import org.kunp.ScreenManager;
-import org.kunp.ServerCommunicator;
-import org.kunp.StateManager;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 
 import java.io.PrintWriter;
 
-public class Player {
+public class PlayerComponent {
     private int x, y;
     private String role;
     private String sessionId;
@@ -15,7 +15,7 @@ public class Player {
     private ServerCommunicator serverCommunicator;
     private int gameId;
 
-    public Player(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, int startX, int startY, String role, PrintWriter out, String sessionId, int gameId) {
+    public PlayerComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, int startX, int startY, String role, PrintWriter out, String sessionId, int gameId) {
         this.x = startX;
         this.y = startY;
         this.role = role;

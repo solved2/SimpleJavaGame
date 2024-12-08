@@ -1,4 +1,4 @@
-package org.kunp;
+package org.kunp.manager;
 
 import javax.swing.*;
 
