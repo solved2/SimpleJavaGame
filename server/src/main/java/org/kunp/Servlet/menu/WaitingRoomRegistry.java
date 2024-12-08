@@ -51,6 +51,10 @@ public class WaitingRoomRegistry {
     waitingRooms.put(roomName, waitingRoom);
   }
 
+  public void removeWaitingRoom(String roomName) {
+    waitingRooms.remove(roomName);
+  }
+
   public void startGame(Session session, String roomName, int userLimit, int timeLimit) {
     if(!waitingRooms.get(roomName).isHost(session.getSessionId())) {
       return;

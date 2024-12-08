@@ -22,8 +22,8 @@ public class GameRequestHandler {
         return gameRequestHandler;
     }
 
-    public void createGameContextAndJoinAll(WaitingRoomContext context, Session session) {
-    int gameId =
+    public int createGameContextAndJoinAll(WaitingRoomContext context, Session session) {
+        int gameId =
         GameContextRegistry.getInstance()
             .createGameContext(
                 context.getRoomName(), session.getSessionId(), context.getUserLimit(), context.getTimeLimit());
@@ -31,12 +31,13 @@ public class GameRequestHandler {
             Session user = SessionManager.getInstance().getSession(entry.getKey());
             GameContextRegistry.getInstance().subscribe(user, gameId);
         }
+      System.out.println("Game Created: " + gameId + " : " +  context.getRoomName() + " " + context.getUserLimit() + " " + context.getTimeLimit());
         GameContextRegistry.getInstance().startGameContext(gameId);
-
+        return gameId;
     }
 
     public void handleGameRequest(Session session, GameMessage parsedMessage) throws IOException {
-      createIfRoomNotExist(session, parsedMessage, 30, 2); //default 30, 2
+
       GameContextRegistry.getInstance().subscribe(session, parsedMessage.getGameId());
       if (parsedMessage.getType() == 201) {
         GameContextRegistry.getInstance().updatePositionState(parsedMessage);
@@ -44,10 +45,4 @@ public class GameRequestHandler {
         GameContextRegistry.getInstance().interact(parsedMessage);
       }
     }
-
-  private void createIfRoomNotExist(Session session, GameMessage message, int userlimit, int timelimit) {
-    if(!GameContextRegistry.getInstance().hasGame(message.getGameId())) {
-      GameContextRegistry.getInstance().createGameContext("roomName", session.getSessionId(), userlimit, timelimit);
-    }
-  }
 }

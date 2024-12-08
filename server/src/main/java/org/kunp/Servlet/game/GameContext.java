@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.kunp.ResponseCode;
+import org.kunp.Servlet.menu.WaitingRoomRegistry;
 import org.kunp.Servlet.session.Session;
 
 import static java.lang.String.format;
@@ -38,13 +39,15 @@ public class GameContext {
 
   // 게임 정보
   private final int gameId;
+  private final String roomName;
   private final AtomicBoolean isStarted;
   private final AtomicBoolean isFinished;
   private final int timeLimit;
   private LocalDateTime endTime;
 
-  public GameContext(int gameId, AtomicBoolean isFinished, int timeLimit, int userlimit) {
+  public GameContext(int gameId, AtomicBoolean isFinished, int timeLimit, int userlimit, String roomName) {
     this.gameId = gameId;
+    this.roomName = roomName;
     this.isStarted= new AtomicBoolean(false);
     this.isFinished = isFinished;
     this.timeLimit = timeLimit;
@@ -182,6 +185,7 @@ public class GameContext {
     String resultMessage = createGameResultMessage(gameId, win);
     sendMessageToAll(resultMessage);
     isFinished.set(true);
+    WaitingRoomRegistry.getInstance().endGame(roomName);
   }
 
   private String createGameResultMessage(int gameId, int win) {

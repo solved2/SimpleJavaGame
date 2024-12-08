@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.kunp.Servlet.*;
+import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.session.*;
 
 public class Main {
@@ -86,6 +87,7 @@ public class Main {
         }
         System.out.println("Active threads: " + Thread.activeCount());
         System.out.println("Active Sessions : " + sessionManager.getSessionCount());
+        GameContextRegistry.getInstance().monitor();
       }
     }
   }

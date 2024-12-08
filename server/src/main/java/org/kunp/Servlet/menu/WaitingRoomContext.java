@@ -1,5 +1,6 @@
 package org.kunp.Servlet.menu;
 
+import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.game.GameRequestHandler;
 import org.kunp.Servlet.session.Session;
 
@@ -13,7 +14,8 @@ public class WaitingRoomContext {
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
 
   private final String roomName;
-  private final String hostId;
+  private int gameId;
+  private String hostId;
   private final int userLimit;
   private final int timeLimit;
   private boolean exposeLevel = true;
@@ -31,7 +33,6 @@ public class WaitingRoomContext {
 
   // 110번: 입장 메세지
   public synchronized void enter(Session session) throws IOException {
-    if (participants.containsKey(session.getSessionId())) return;
 
     if (participants.size() >= userLimit) {
       return;
@@ -51,10 +52,19 @@ public class WaitingRoomContext {
   }
 
   // 111번: 퇴장 메세지
-  public synchronized void leave(Session session) {
-    System.out.println("leave");
+  public void leave(Session session) {
+    synchronized (this) {
+      participants.remove(session.getSessionId());
+      if(participants.isEmpty()) {
+        WaitingRoomRegistry.getInstance().removeWaitingRoom(roomName);
+        return;
+      }
+      if(session.getSessionId().equals(hostId)) {
+        //select random host
+        hostId = participants.keySet().iterator().next();
+      }
+    }
     broadCast("111|%s\n".formatted(session.getSessionId()));
-    participants.remove(session.getSessionId());
   }
 
   public void broadCast(String message) {
@@ -97,11 +107,12 @@ public class WaitingRoomContext {
   // 게임 초기화
   public void initGame(Session session) {
     this.exposeLevel = false;
-    GameRequestHandler.getInstance().createGameContextAndJoinAll(this, session);
+    this.gameId = GameRequestHandler.getInstance().createGameContextAndJoinAll(this, session);
   }
 
   public void endGame() {
     this.exposeLevel = true;
+    GameContextRegistry.getInstance().endGame(gameId);
     // Broadcast to all participants
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       broadCast("110|%s|%s|content|time\n".formatted(String.join(",", participants.keySet()), roomName));
