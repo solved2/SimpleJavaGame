@@ -185,6 +185,10 @@ public class GameContext {
     int win = chaserWon ? 0 : 1; // 0: 술래 승리, 1: 도망 승리
     String resultMessage = createGameResultMessage(gameId, win);
     sendMessageToAll(resultMessage);
+    endGame();
+  }
+
+  private void endGame() {
     isFinished.set(true);
     WaitingRoomRegistry.getInstance().endGame(roomName);
   }
@@ -308,6 +312,7 @@ public class GameContext {
   }
 
   public void determineWinner() {
+    if (participants.isEmpty()) endGame();
     if (isTimeOut()) {
       // 타임아웃이 된 경우, 도망자 승리
       log.warning(format("gameId : %d | Game timed out. Runners win.", this.gameId));
@@ -338,6 +343,7 @@ public class GameContext {
   }
 
   private void reap(String sessionId) {
+    WaitingRoomRegistry.getInstance().leaveWaitingRoom(sessionId, roomName);
     playerStates.remove(sessionId);
     isChaser.remove(sessionId);
     positions.remove(sessionId);

@@ -46,7 +46,7 @@ public class MenuRequestHandler {
         break;
       case 103:
         System.out.println("대기방 퇴장");
-        waitingRoomRegistry.leaveWaitingRoom(session, message.getRoomName(), message.getUserLimit(), message.getTimeLimit());
+        waitingRoomRegistry.leaveWaitingRoom(session.getSessionId(), message.getRoomName());
         break;
       case 105:
         waitingRoomRegistry.startGame(session, message.getRoomName(), message.getUserLimit(), message.getTimeLimit());

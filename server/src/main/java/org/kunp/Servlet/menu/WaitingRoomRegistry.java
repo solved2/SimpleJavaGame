@@ -40,9 +40,9 @@ public class WaitingRoomRegistry {
   }
 
   // 대기방 퇴장
-  void leaveWaitingRoom(Session session, String roomName, int userLimit, int timeLimit) {
+  public void leaveWaitingRoom(String sessionId, String roomName) {
     WaitingRoomContext waitingRoom = waitingRooms.get(roomName);
-    waitingRoom.leave(session);
+    waitingRoom.leave(sessionId);
   }
 
   // 대기방 생성

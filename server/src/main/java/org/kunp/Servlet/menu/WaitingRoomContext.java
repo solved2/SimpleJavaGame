@@ -55,19 +55,19 @@ public class WaitingRoomContext {
   }
 
   // 111번: 퇴장 메세지
-  public void leave(Session session) {
+  public void leave(String sessionId) {
     synchronized (this) {
-      participants.remove(session.getSessionId());
+      participants.remove(sessionId);
       if(participants.isEmpty()) {
         WaitingRoomRegistry.getInstance().removeWaitingRoom(roomName);
         return;
       }
-      if(session.getSessionId().equals(hostId)) {
+      if(sessionId.equals(hostId)) {
         //select random host
         hostId = participants.keySet().iterator().next();
       }
     }
-    broadCast("111|%s\n".formatted(session.getSessionId()));
+    broadCast("111|%s\n".formatted(sessionId));
   }
 
   public void broadCast(String message) {
@@ -135,10 +135,6 @@ public class WaitingRoomContext {
       cancelList.forEach(e -> broadCast("111|%s\n".formatted(e)));
       cancelList.clear();
     }
-  }
-
-  private void checkParticipants() {
-
   }
 
   public void endGame() {
