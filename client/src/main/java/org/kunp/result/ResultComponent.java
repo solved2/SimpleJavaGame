@@ -41,17 +41,10 @@ public class ResultComponent extends JPanel {
         add(resultPanel, BorderLayout.CENTER);
 
         returnButton.addActionListener(e -> {
-            String message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
-            ServerCommunicator.ServerMessageListener oldListener = stateManager.getCurrentListener();
-            if (oldListener != null) {
-                serverCommunicator.removeMessageListener(oldListener);
-            }
-            stateManager.setCurrentListener(null);
-            System.out.println("result에서 보낸 대기실 이름 : " + roomName);
-            screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
-            stateManager.sendServerRequest(message, () -> {
-                stateManager.switchTo("InnerWaitingRoom");
-            });
+            InnerWaitingRoomComponent innerWaitingRoom = new InnerWaitingRoomComponent(
+                stateManager, serverCommunicator, screenManager, roomName, in, out, sessionIds);
+            screenManager.addScreen("InnerWaitingRoom", innerWaitingRoom);
+            stateManager.switchTo("InnerWaitingRoom");
         });
     }
 }

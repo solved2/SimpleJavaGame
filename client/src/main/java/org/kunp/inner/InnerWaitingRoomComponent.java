@@ -16,6 +16,10 @@ import java.util.Set;
 
 public class InnerWaitingRoomComponent extends JPanel {
   public InnerWaitingRoomComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, String roomName, BufferedReader in, PrintWriter out) {
+    this(stateManager, serverCommunicator, screenManager, roomName, in, out, new HashSet<>());
+  }
+
+  public InnerWaitingRoomComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, String roomName, BufferedReader in, PrintWriter out, Set<String> existingSessionIds) {
     setLayout(new BorderLayout());
     setBorder(BorderFactory.createLineBorder(Color.GRAY));
     setPreferredSize(new Dimension(350, 200));
@@ -24,16 +28,14 @@ public class InnerWaitingRoomComponent extends JPanel {
     nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
     add(nameLabel, BorderLayout.NORTH);
 
-    Set<String> sessionIds = new HashSet<>();
-    InnerWaitingRoomListPanel listPanel = new InnerWaitingRoomListPanel(sessionIds);
+    InnerWaitingRoomListPanel listPanel = new InnerWaitingRoomListPanel(existingSessionIds);
     add(listPanel, BorderLayout.CENTER);
 
     InnerWaitingRoomControlPanel controlPanel = new InnerWaitingRoomControlPanel(stateManager, screenManager, serverCommunicator, roomName, in, out);
     add(controlPanel, BorderLayout.SOUTH);
 
-
-    System.out.println("add server listener success");
-    ServerCommunicator.ServerMessageListener listener = message -> handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, serverCommunicator, screenManager, roomName);
+    ServerCommunicator.ServerMessageListener listener = message -> 
+        handleServerMessage(message, existingSessionIds, listPanel, in, out, stateManager, serverCommunicator, screenManager, roomName);
 
     stateManager.addMessageListener(listener);
   }
