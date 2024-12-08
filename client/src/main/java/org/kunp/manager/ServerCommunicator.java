@@ -28,6 +28,7 @@ public class ServerCommunicator {
                     notifyListeners(message);
                 }
             } catch (IOException e) {
+                System.exit(0);
                 e.printStackTrace();
             }
         }).start();
