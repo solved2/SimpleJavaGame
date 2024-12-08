@@ -45,6 +45,12 @@ public class PlayerComponent {
         this.mapIdx = mapIdx;
     }
 
+    public void setLoc(int x, int y) {
+        this.x = x;
+        this.y = y;
+        sendLocation();
+    }
+
     public void move(int dx, int dy) {
         x += dx;
         y += dy;

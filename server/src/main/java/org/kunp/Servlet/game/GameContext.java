@@ -21,6 +21,10 @@ public class GameContext {
   private static final int RUNNER = 1;
   private static final int JAIL_X = 0; // 감옥 x 좌표
   private static final int JAIL_Y = 0; // 감옥 y 좌표
+  private static final int TOUCHDOWN_X = 70;
+  private static final int TOUCHDOWN_Y = 60;
+  private static final int ESCAPE_X = 0;
+  private static final int ESCAPE_Y = 70;
   private static final int JAIL_ROOM_NUMBER = 1; // 감옥 roomNumber
 
   // Connection 관련 객체
@@ -258,7 +262,7 @@ public class GameContext {
 
   private void handleRunnerInteraction(String sessionId, int roomNumber) throws IOException {
     int[] runnerPos = positions.get(sessionId);
-    if(isNearJail(runnerPos)) {
+    if(isNearTouchDown(runnerPos)) {
       releaseRunnersInJail(roomNumber);
     }
   }
@@ -269,7 +273,8 @@ public class GameContext {
         .forEach(e -> {
           playerStates.put(e.getKey(), false);
           int[] targetPos = positions.get(e.getKey());
-          String response = createFreedResponse(e.getKey(), targetPos[0], targetPos[1], roomNumber, gameId, targetPos[3]);
+          positions.put(e.getKey(), new int[]{0, 50, roomNumber, targetPos[3]}); // 감옥 위치
+          String response = createFreedResponse(e.getKey(), ESCAPE_X, ESCAPE_Y, roomNumber, gameId, targetPos[3]);
           sendMessageToAll(response);
         });
   }
@@ -285,16 +290,16 @@ public class GameContext {
       if (!isRunner(targetId) || isPlayerDisabled(targetId)) continue; // 술래거나 잡힌 사용자 제외
       if (isAvailable(chaserPos, targetPos)) {
         // 도망자를 감옥으로 이동
-        positions.put(targetId, new int[]{JAIL_X, JAIL_Y, roomNumber, targetPos[3]}); // 감옥 위치
+        positions.put(targetId, new int[]{JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER, targetPos[3]}); // 감옥 위치
         playerStates.put(targetId, true); // 상태 업데이트 (갇힌 상태)
-        sendMessageToAll(createCaughtResponse(targetId,roomNumber, gameId, targetPos[3]));
+        sendMessageToAll(createCaughtResponse(targetId,JAIL_ROOM_NUMBER, gameId, targetPos[3]));
       }
     }
   }
 
-  private boolean isNearJail(int[] runnerPos) {
+  private boolean isNearTouchDown(int[] runnerPos) {
     // 감옥 근처에 있는지 확인 (JAIL_X, JAIL_Y 기준)
-    return Math.abs(runnerPos[0] - JAIL_X) < 10 && Math.abs(runnerPos[1] - JAIL_Y) < 10;
+    return Math.abs(runnerPos[0] - TOUCHDOWN_X) < 10 && Math.abs(runnerPos[1] - TOUCHDOWN_Y) < 10;
   }
 
   public void determineWinner() {
