@@ -70,9 +70,12 @@ public class WaitingRoomCreationPanel extends JPanel {
                     int timeLimit = Integer.parseInt(timeLimitText);
                     int playerLimit = Integer.parseInt(playerLimitText);
 
-                    if (timeLimit <= 0 || playerLimit < 2 || playerLimit > 8 || playerLimit % 2 != 0 || roomName.contains(",")) {
+                    if (timeLimit <= 0 || playerLimit < 2 || playerLimit > 8 || playerLimit % 2 != 0 ) {
                         JOptionPane.showMessageDialog(this, "입력 오류: 제한 시간과 인원을 확인하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
-                    } else {
+                    } else if (roomName.contains(",") || isPositiveInteger(roomName)) {
+                        JOptionPane.showMessageDialog(this, "입력 오류: 방 이름을 확인하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
+                    }
+                    else {
                         String message = String.format("102|%s|%s|%d|%d", stateManager.getSessionId(), roomName, playerLimit, timeLimit);
                         stateManager.sendServerRequest(message, () -> {});
 
@@ -89,6 +92,13 @@ public class WaitingRoomCreationPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "모든 필드를 입력하세요.", "입력 오류", JOptionPane.WARNING_MESSAGE);
             }
         });
+    }
+
+    private boolean isPositiveInteger(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        return str.matches("\\d+"); // 숫자로만 구성되어 있는지 확인
     }
 }
 
