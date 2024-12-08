@@ -1,8 +1,8 @@
 package org.kunp.result;
 
-import org.kunp.ScreenManager;
-import org.kunp.ServerCommunicator;
-import org.kunp.StateManager;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 import org.kunp.inner.InnerWaitingRoomComponent;
 
 import javax.swing.*;
@@ -40,17 +40,11 @@ public class ResultComponent extends JPanel {
         add(resultPanel, BorderLayout.CENTER);
 
         returnButton.addActionListener(e -> {
-          String message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
-          String[] tokens = message.split("\\|");
-          if (tokens.length > 0) {
-            if (tokens[0].equals("110")) {
-                screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
-                stateManager.sendServerRequest(message, () -> {
-                    stateManager.switchTo("InnerWaitingRoom");
-                });
-              }
-            }
-          }
-        );
+            String message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
+            screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
+            stateManager.sendServerRequest(message, () -> {
+                stateManager.switchTo("InnerWaitingRoom");
+            });
+        });
     }
 }

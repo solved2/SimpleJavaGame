@@ -5,14 +5,14 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-public class MapPanel extends JPanel {
+public class MapComponentPanel extends JPanel {
     private int mapX, mapY;
     private Rectangle[] portals;
 
     private int[][] state = new int[Constants.MAP_SIZE][Constants.MAP_SIZE];
     private HashMap<String, Location> locations = null;
 
-    public MapPanel(int mapX, int mapY, HashMap<String, Location> locations) {
+    public MapComponentPanel(int mapX, int mapY, HashMap<String, Location> locations) {
         this.mapX = mapX;
         this.mapY = mapY;
         this.locations = locations;

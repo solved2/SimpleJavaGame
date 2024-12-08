@@ -1,6 +1,8 @@
 package org.kunp;
 
-import org.kunp.result.ResultComponent;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 import org.kunp.waiting.WaitingRoomCreationPanel;
 import org.kunp.waiting.WaitingRoomListPanel;
 
@@ -39,7 +41,7 @@ public class Client {
         StateManager stateManager = new StateManager(screenManager, serverCommunicator, sessionId);
 
         // 프레임 설정
-        JFrame frame = new JFrame("Tag Game - 대기실");
+        JFrame frame = new JFrame("Tag Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setPreferredSize(new Dimension(500, 500));
         frame.setSize(500, 500); // 화면 크기

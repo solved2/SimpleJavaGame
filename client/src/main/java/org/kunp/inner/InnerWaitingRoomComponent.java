@@ -1,10 +1,10 @@
 package org.kunp.inner;
 
-import org.kunp.ScreenManager;
-import org.kunp.ServerCommunicator;
-import org.kunp.StateManager;
-import org.kunp.map.Map;
-import org.kunp.map.Player;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
+import org.kunp.map.MapComponent;
+import org.kunp.map.PlayerComponent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -65,10 +65,10 @@ public class InnerWaitingRoomComponent extends JPanel {
                 try {
                     int gameId = Integer.parseInt(tokens[1]);
                     String role = tokens[2].equals("0") ? "tagger" : "normal";
-                    Player player = new Player(stateManager, serverCommunicator, screenManager,
+                    PlayerComponent player = new PlayerComponent(stateManager, serverCommunicator, screenManager,
                             Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, stateManager.getSessionId(), gameId
                     );
-                    screenManager.addScreen("Map", new Map(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId));
+                    screenManager.addScreen("Map", new MapComponent(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId));
                     System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
                 } catch (Exception ex) {

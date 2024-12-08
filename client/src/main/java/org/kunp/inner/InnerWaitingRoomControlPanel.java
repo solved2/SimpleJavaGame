@@ -1,10 +1,8 @@
 package org.kunp.inner;
 
-import org.kunp.ScreenManager;
-import org.kunp.ServerCommunicator;
-import org.kunp.StateManager;
-import org.kunp.map.Map;
-import org.kunp.map.Player;
+import org.kunp.manager.ScreenManager;
+import org.kunp.manager.ServerCommunicator;
+import org.kunp.manager.StateManager;
 
 import javax.swing.*;
 import java.awt.*;
