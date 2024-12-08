@@ -2,7 +2,6 @@ package org.kunp.Servlet.game;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.SocketException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -12,6 +11,8 @@ import org.kunp.Servlet.session.Session;
 
 public class GameContext {
 
+  private static final int CHASER = 0;
+  private static final int RUNNER = 1;
   private static final int JAIL_X = 0; // 감옥 x 좌표
   private static final int JAIL_Y = 0; // 감옥 y 좌표
   private static final int JAIL_ROOM_NUMBER = 1; // 감옥 roomNumber
@@ -37,33 +38,7 @@ public class GameContext {
     this.timelimit = timelimit;
   }
 
-  public void startTimer() {
-    startTime = LocalDateTime.now();  // 게임 시작 시간 기록
-    endTime = startTime.plusSeconds(60*timelimit);  // 게임 종료 시간 계산
-    System.out.println("Game started.");
-  }
-
-  // 타임아웃 체크
-  public boolean isTimeOut() {
-    if (endTime != null) {
-      // 현재 시간이 종료 시간을 넘었는지 확인
-      return Duration.between(LocalDateTime.now(), endTime).isNegative();
-    }
-    return false;
-  }
-
-  public boolean isFinished() {
-    return this.isFinished.get();
-  }
-
-  public void initializePlayerStates() {
-    for (String sessionId : participants.keySet()) {
-      // 모든 참가자 기본값 설정
-      isChaser.putIfAbsent(sessionId, 1); // 1 = 도망자
-      playerStates.putIfAbsent(sessionId, false); // false = 자유 상태
-    }
-  }
-
+  // 상태 업데이트 메소드
   public void updateContext(String sessionId, int x, int y, int roomId) {
     if (!isStarted.get() || startTime == null) {
       System.out.println("Game has not started or timer not initialized.");
@@ -88,12 +63,11 @@ public class GameContext {
     this.positions.get(sessionId)[0] = x;
     this.positions.get(sessionId)[1] = y;
     this.positions.get(sessionId)[2] = roomId;
-    this.positions.get(sessionId)[3] = isChaser.getOrDefault(sessionId, 1);
+    this.positions.get(sessionId)[3] = isChaser.getOrDefault(sessionId, RUNNER);
   }
 
 
   public void updateAndBroadCast() {
-    System.out.println("Start");
     for (Map.Entry<String, OutputStream> participant : participants.entrySet()) {
       try {
         OutputStream oos = participant.getValue();
@@ -106,9 +80,20 @@ public class GameContext {
       }
     }
     removeDisconnectedParticipants();
-    System.out.println("done");
   }
 
+  public void updateInteraction(String id, int roomNumber) throws IOException {
+    int[] pos = positions.get(id);
+    if (pos == null) return; // 유효하지 않은 사용자 무시
+
+    if (isChaser.get(id) == RUNNER) { // 도망자
+      handleRunnerInteraction(id, roomNumber);
+    } else { // 술래
+      handleChaserInteraction(id, roomNumber);
+    }
+  }
+
+  // 커맨드
   public void enter(Session session) {
     if(participants.containsKey(session.getSessionId())) return;
     participants.put(session.getSessionId(), (OutputStream) session.getAttributes().get("ops"));
@@ -126,9 +111,6 @@ public class GameContext {
 
     /* 전체 플레이어의 절반을 술래, 절반을 도망자로 배정 */
     int numPlayers = keys.size();
-    if (keys.size() < 2) {
-      throw new IllegalStateException("Not enough participants to select two chasers");
-    }
 
     int numChasers = numPlayers / 2;
     Random random = new Random();
@@ -141,11 +123,9 @@ public class GameContext {
     for (String chaser : chasers) {
       setChaser(chaser);
     }
-
-
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       try {
-        entry.getValue().write(String.format("113|%d|%d|%d|%d\n", gameId, isChaser.getOrDefault(entry.getKey(), 1), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
+        entry.getValue().write(String.format("113|%d|%d|%d|%d\n", gameId, isChaser.getOrDefault(entry.getKey(), RUNNER), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
         entry.getValue().flush();
       } catch (IOException e) {
         throw new RuntimeException(e);
@@ -155,27 +135,16 @@ public class GameContext {
     startTimer(); // 타이머 시작
   }
 
-  private void setChaser(String sessionId) {
-    isChaser.put(sessionId, 0);
+  public boolean isFinished() {
+    return this.isFinished.get();
   }
 
   public boolean isEmpty() {
     return participants.isEmpty();
   }
 
-  private String createMessage(int type, int[] position, String id, int gameId) {
-    return type + "|" + id + "|" + position[0] + "|" + position[1] + "|" + position[2] + "|" + gameId+ "|" + position[3] + "\n";
-  }
-
-  public void updateInteraction(String id, int roomNumber) throws IOException {
-    int[] pos = positions.get(id);
-    if (pos == null) return; // 유효하지 않은 사용자 무시
-
-    if (isChaser.getOrDefault(id, 1) != 0) { // 도망자
-      handleRunnerInteraction(id, roomNumber);
-    } else { // 술래
-      handleChaserInteraction(id, roomNumber);
-    }
+  private void setChaser(String sessionId) {
+    isChaser.put(sessionId, CHASER);
   }
 
   private void handleRunnerInteraction(String id, int roomNumber) throws IOException {
@@ -210,10 +179,10 @@ public class GameContext {
       String targetId = entry.getKey();
       int[] targetPos = entry.getValue();
 
-      if (targetId.equals(id)) continue; // 자신 제외
-      if (isChaser.getOrDefault(targetId, 1) == 0) continue; // 다른 술래 제외
-      if (playerStates.getOrDefault(targetId, false)) continue; // 이미 감옥에 갇힌 경우 무시
-
+      System.out.println("catch");
+      if (isChaser.get(targetId) == CHASER) continue; // 다른 술래 제외
+      if (playerStates.get(targetId)) continue; // 이미 감옥에 갇힌 경우 무시
+      System.out.println(id + " : " + targetId);
       if (isAvailable(chaserPos, targetPos)) {
         // 도망자를 감옥으로 이동
         positions.put(targetId, new int[]{JAIL_X, JAIL_Y, roomNumber}); // 감옥 위치
@@ -244,8 +213,8 @@ public class GameContext {
         String playerId = entry.getKey();
 
         // 플레이어가 도망자인지 확인하고 잡혔는지 검사
-        boolean isRunner = isChaser.getOrDefault(playerId, 0) == 0; // 기본값 0 = 도망자
-        boolean isCaptured = entry.getValue(); // true = 잡힘, false = 자유 상태
+        boolean isRunner = isChaser.get(playerId) == RUNNER;
+        boolean isCaptured = entry.getValue();
 
         if (isRunner && !isCaptured) {
           // 잡히지 않은 도망자가 있는 경우
@@ -268,6 +237,8 @@ public class GameContext {
 
 
   public void sendGameResult(boolean chaserWon) {
+    System.out.println("Game ended. Result sent to all players: " + (chaserWon ? "Chasers win" : "Runners win"));
+
     int win = chaserWon ? 0 : 1; // 0: 술래 승리, 1: 도망 승리
     String resultMessage = createGameResultMessage(213, gameId, win);
 
@@ -277,7 +248,6 @@ public class GameContext {
     // 게임 종료 상태로 설정
     isFinished.set(true);
 
-    System.out.println("Game ended. Result sent to all players: " + (chaserWon ? "Chasers win" : "Runners win"));
   }
 
   private String createGameResultMessage(int type, int gameId, int win) {
@@ -305,6 +275,14 @@ public class GameContext {
     }
   }
 
+  private void initializePlayerStates() {
+    for (String sessionId : participants.keySet()) {
+      // 모든 참가자 기본값 설정
+      isChaser.putIfAbsent(sessionId, RUNNER); // 1 = 도망자
+      playerStates.putIfAbsent(sessionId, false); // false = 자유 상태
+    }
+  }
+
   private boolean isAvailable(int[] pos1, int[] pos2) {
     return pos1[0] - pos2[0] < 10 && pos1[1] - pos2[1] < 10;
   }
@@ -323,6 +301,26 @@ public class GameContext {
       }
     }
     toRemove.clear();
+  }
+
+  private String createMessage(int type, int[] position, String id, int gameId) {
+    return type + "|" + id + "|" + position[0] + "|" + position[1] + "|" + position[2] + "|" + gameId+ "|" + position[3] + "\n";
+  }
+
+
+  private void startTimer() {
+    startTime = LocalDateTime.now();  // 게임 시작 시간 기록
+    endTime = startTime.plusMinutes(timelimit);  // 게임 종료 시간 계산
+    System.out.println("Game started.");
+  }
+
+  // 타임아웃 체크
+  private boolean isTimeOut() {
+    if (endTime != null) {
+      // 현재 시간이 종료 시간을 넘었는지 확인
+      return Duration.between(LocalDateTime.now(), endTime).isNegative();
+    }
+    return false;
   }
 }
 
