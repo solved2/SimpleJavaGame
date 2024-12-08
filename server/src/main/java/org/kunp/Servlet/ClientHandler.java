@@ -59,7 +59,6 @@ public class ClientHandler implements Runnable {
   private void processClientRequests(BufferedReader br) throws IOException {
     String line;
     while ((line = br.readLine()) != null) {
-      System.out.println("Received: " + line);
       // 임시로 방 생성
       RequestHandler.getInstance().handleRequest(session, line);
     }

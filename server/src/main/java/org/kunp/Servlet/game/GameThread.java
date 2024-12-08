@@ -11,11 +11,14 @@ public class GameThread implements Runnable{
   @Override
   public void run() {
       while(!gameContext.isFinished()) {
-          gameContext.updateAndBroadCast();
           try {
-              Thread.sleep(10);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+            gameContext.updateAndBroadCast();
+            Thread.sleep(10);
+          } catch (InterruptedException e) {
+              System.out.println(e);
+          }
+          catch (Exception e) {
+              System.out.println(e);
           }
       }
   }

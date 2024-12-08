@@ -1,7 +1,6 @@
 package org.kunp.Servlet.game;
 
 import org.kunp.Servlet.message.GameMessage;
-import org.kunp.Servlet.message.Message;
 import org.kunp.Servlet.session.Session;
 
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class GameContextRegistry {
 
   public void startGameContext(int gameId) {
     GameContext gc = gameContexts.get(gameId);
-    gc.setChasers();
+    gc.setChasersAndStart();
     Runnable gameThread = new GameThread(gc);
     this.gameThreadPool.submit(gameThread);
   }
@@ -46,9 +45,9 @@ public class GameContextRegistry {
     return gameContexts.containsKey(gameId);
   }
 
-  public void update(GameMessage message) {
+  public void updatePositionState(GameMessage message) {
     GameContext gc = gameContexts.get(message.getGameId());
-    gc.updateContext(message.getId(), message.getX(), message.getY(), message.getRoomNumber());
+    gc.updatePositionContext(message.getId(), message.getX(), message.getY(), message.getRoomNumber());
   }
 
   public void subscribe(Session session, int gameId) {
@@ -58,7 +57,6 @@ public class GameContextRegistry {
 
   public void unsubscribe(Session session, int roomNumber) {
     GameContext gc = gameContexts.get(roomNumber);
-    gc.leave(session);
     if(gc.isEmpty()) {
       gameContexts.remove(roomNumber);
     }
@@ -70,6 +68,6 @@ public class GameContextRegistry {
 
   public void interact(GameMessage message) throws IOException {
     GameContext gc = gameContexts.get(message.getGameId());
-    gc.updateInteraction(message.getId(), message.getRoomNumber());
+    gc.handleInteractions(message.getId(), message.getRoomNumber());
   }
 }

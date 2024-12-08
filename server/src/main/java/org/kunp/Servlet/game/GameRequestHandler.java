@@ -34,11 +34,9 @@ public class GameRequestHandler {
     public void handleGameRequest(Session session, GameMessage parsedMessage) throws IOException {
       createIfRoomNotExist(session, parsedMessage, 30, 2); //default 30, 2
       GameContextRegistry.getInstance().subscribe(session, parsedMessage.getGameId());
-      System.out.println(parsedMessage.getType());
       if (parsedMessage.getType() == 201) {
-        GameContextRegistry.getInstance().update(parsedMessage);
+        GameContextRegistry.getInstance().updatePositionState(parsedMessage);
       } else if (parsedMessage.getType() == 202) {
-        System.out.println("interaction");
         GameContextRegistry.getInstance().interact(parsedMessage);
       }
     }
