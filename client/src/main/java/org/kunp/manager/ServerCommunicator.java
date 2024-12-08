@@ -39,15 +39,23 @@ public class ServerCommunicator {
     }
 
     public void addMessageListener(ServerMessageListener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
     public void removeMessageListener(ServerMessageListener listener) {
-        listeners.remove(listener);
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
     private void notifyListeners(String message) {
-        for (ServerMessageListener listener : listeners) {
+        List<ServerMessageListener> listenersCopy;
+        synchronized (listeners) {
+            listenersCopy = new ArrayList<>(listeners);
+        }
+        for (ServerMessageListener listener : listenersCopy) {
             listener.onMessageReceived(message);
         }
     }
