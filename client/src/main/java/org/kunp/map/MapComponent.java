@@ -57,10 +57,9 @@ public class MapComponent extends JPanel {
         moveTimer.start();
 
         serverCommunicator.addMessageListener(message -> {
-            System.out.println(message);
             String[] tokens = message.split("\\|");
             String type = tokens[0];
-            if(type.equals("210") || type.equals("211") || type.equals("212")){
+            if(type.equals("210")){
                 String mover_sessionId = tokens[1];
                 int x = Integer.parseInt(tokens[2]), y = Integer.parseInt(tokens[3]);
                 int mapIdx = Integer.parseInt(tokens[4]);
@@ -68,6 +67,20 @@ public class MapComponent extends JPanel {
                 synchronized (locations){
                     if(!locations.containsKey(mover_sessionId)) locations.put(mover_sessionId, new Location(role, mapIdx, x, y));
                     else locations.get(mover_sessionId).setLocation(role, mapIdx, x, y);
+                }
+                repaint();
+            }
+            else if(type.equals("211") || type.equals("212")){
+                String target_sessionId = tokens[1];
+                int x = Integer.parseInt(tokens[2]), y = Integer.parseInt(tokens[3]);
+                int mapIdx = Integer.parseInt(tokens[4]);
+                int role = Integer.parseInt(tokens[6]);
+                synchronized (locations){
+                    if(!locations.containsKey(target_sessionId)) locations.put(target_sessionId, new Location(role, mapIdx, x, y));
+                    else locations.get(target_sessionId).setLocation(role, mapIdx, x, y);
+                }
+                if(target_sessionId.equals(this.sessionId)){
+                    setView(mapIdx, x, y);
                 }
                 repaint();
             }else if(type.equals("213")){
@@ -172,6 +185,17 @@ public class MapComponent extends JPanel {
         if (portal == 3) player.move(-Constants.MAP_SIZE + 2*portalSize + 10, 0);
         if (portal == 0) player.move(0, Constants.MAP_SIZE - 2*portalSize - Constants.PLAYER_SIZE_Y-20);
         if (portal == 1) player.move(0, -Constants.MAP_SIZE + 2*portalSize + Constants.PLAYER_SIZE_Y+20);
+        add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
+        revalidate();
+        requestFocusInWindow();
+    }
+
+    private void setView(int mapIdx, int x, int y){
+        remove(maps[currentMapX][currentMapY]);
+        currentMapX = 0;
+        currentMapY = 0;
+        player.setMapIdx(mapIdx);
+        player.setLoc(x, y);
         add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
         revalidate();
         requestFocusInWindow();
