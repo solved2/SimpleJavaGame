@@ -27,6 +27,7 @@ public class WaitingRoomRegistry {
   // 대기방 조회
   String getWaitingRooms() {
     return waitingRooms.values().stream()
+        .filter(WaitingRoomContext::isClosed)
         .map(WaitingRoomContext::getRoomName)
         .collect(Collectors.joining(","));
   }
@@ -55,5 +56,9 @@ public class WaitingRoomRegistry {
       return;
     }
     waitingRooms.get(roomName).initGame(session);
+  }
+
+  public void endGame(String roomName) {
+    waitingRooms.get(roomName).endGame();
   }
 }

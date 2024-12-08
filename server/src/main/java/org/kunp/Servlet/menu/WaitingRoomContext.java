@@ -16,6 +16,7 @@ public class WaitingRoomContext {
   private final String hostId;
   private final int userLimit;
   private final int timeLimit;
+  private boolean exposeLevel = true;
 
   public WaitingRoomContext(String roomName, String hostId, int userLimit, int timeLimit) {
     // 방 이름 검증
@@ -33,7 +34,7 @@ public class WaitingRoomContext {
     if (participants.containsKey(session.getSessionId())) return;
 
     if (participants.size() >= userLimit) {
-      throw new IllegalStateException("Room is full. User cannot join.");
+      return;
     }
 
     OutputStream ops = (OutputStream) session.getAttributes().get("ops");
@@ -73,6 +74,10 @@ public class WaitingRoomContext {
     return hostId.equals(sessionId);
   }
 
+  public boolean isClosed() {
+    return exposeLevel;
+  }
+
   public String getRoomName() {
     return roomName;
   }
@@ -85,8 +90,21 @@ public class WaitingRoomContext {
     return timeLimit;
   }
 
+  public Map<String, OutputStream> getParticipants() {
+    return participants;
+  }
+
   // 게임 초기화
   public void initGame(Session session) {
-    GameRequestHandler.getInstance().createGameContextAndJoinAll(roomName, session, participants, userLimit, timeLimit);
+    this.exposeLevel = false;
+    GameRequestHandler.getInstance().createGameContextAndJoinAll(this, session);
+  }
+
+  public void endGame() {
+    this.exposeLevel = true;
+    // Broadcast to all participants
+    for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
+      broadCast("110|%s|%s|content|time\n".formatted(String.join(",", participants.keySet()), roomName));
+    }
   }
 }

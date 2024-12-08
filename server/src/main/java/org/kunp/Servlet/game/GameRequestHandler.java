@@ -1,5 +1,6 @@
 package org.kunp.Servlet.game;
 
+import org.kunp.Servlet.menu.WaitingRoomContext;
 import org.kunp.Servlet.message.GameMessage;
 import org.kunp.Servlet.session.Session;
 import org.kunp.Servlet.session.SessionManager;
@@ -21,9 +22,12 @@ public class GameRequestHandler {
         return gameRequestHandler;
     }
 
-    public void createGameContextAndJoinAll(String roomName, Session session, Map<String, OutputStream> users, int userlimit, int timelimit) {
-        int gameId = GameContextRegistry.getInstance().createGameContext(roomName, session.getSessionId(), userlimit, timelimit);
-        for(Map.Entry<String, OutputStream> entry : users.entrySet()) {
+    public void createGameContextAndJoinAll(WaitingRoomContext context, Session session) {
+    int gameId =
+        GameContextRegistry.getInstance()
+            .createGameContext(
+                context.getRoomName(), session.getSessionId(), context.getUserLimit(), context.getTimeLimit());
+        for(Map.Entry<String, OutputStream> entry : context.getParticipants().entrySet()) {
             Session user = SessionManager.getInstance().getSession(entry.getKey());
             GameContextRegistry.getInstance().subscribe(user, gameId);
         }
