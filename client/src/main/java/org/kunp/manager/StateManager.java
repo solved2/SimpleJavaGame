@@ -6,7 +6,8 @@ public class StateManager {
     private final ScreenManager screenManager;
     private final ServerCommunicator serverCommunicator;
     private final String sessionId;
-    private String currentScreen; // 현재 화면을 추적하는 필드 추가
+    private String currentScreen;
+    private ServerCommunicator.ServerMessageListener currentListener;// 현재 화면을 추적하는 필드 추가
 
     public StateManager(ScreenManager screenManager, ServerCommunicator serverCommunicator, String sessionId) {
         this.screenManager = screenManager;
@@ -35,6 +36,19 @@ public class StateManager {
 
     public void addMessageListener(ServerCommunicator.ServerMessageListener listener) {
         serverCommunicator.addMessageListener(listener);
+        setCurrentListener(listener);
+    }
+
+    public void setCurrentListener(ServerCommunicator.ServerMessageListener currentListener) {
+        this.currentListener = currentListener;
+    }
+
+    public void removeMessageListener(ServerCommunicator.ServerMessageListener listener) {
+        serverCommunicator.removeMessageListener(listener);
+    }
+
+    public ServerCommunicator.ServerMessageListener getCurrentListener() {
+        return currentListener;
     }
 }
 

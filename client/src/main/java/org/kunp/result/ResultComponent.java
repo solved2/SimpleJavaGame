@@ -9,10 +9,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.util.Set;
 
 public class ResultComponent extends JPanel {
     public ResultComponent(StateManager stateManager, ServerCommunicator serverCommunicator, 
-                         ScreenManager screenManager, String gameResult, String roomName, BufferedReader in, PrintWriter out) {
+                         ScreenManager screenManager, String gameResult, String roomName, BufferedReader in, PrintWriter out, Set<String> sessionIds) {
 
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(500, 500));
@@ -41,6 +42,12 @@ public class ResultComponent extends JPanel {
 
         returnButton.addActionListener(e -> {
             String message = String.format("101|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
+            ServerCommunicator.ServerMessageListener oldListener = stateManager.getCurrentListener();
+            if (oldListener != null) {
+                serverCommunicator.removeMessageListener(oldListener);
+            }
+            stateManager.setCurrentListener(null);
+            System.out.println("result에서 보낸 대기실 이름 : " + roomName);
             screenManager.addScreen("InnerWaitingRoom", new InnerWaitingRoomComponent(stateManager, serverCommunicator, screenManager, roomName, in, out));
             stateManager.sendServerRequest(message, () -> {
                 stateManager.switchTo("InnerWaitingRoom");

@@ -31,17 +31,16 @@ public class InnerWaitingRoomComponent extends JPanel {
     InnerWaitingRoomControlPanel controlPanel = new InnerWaitingRoomControlPanel(stateManager, screenManager, serverCommunicator, roomName, in, out);
     add(controlPanel, BorderLayout.SOUTH);
 
-    // 메시지 리스너 등록
-    ServerCommunicator.ServerMessageListener listener = message -> {
-      handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, serverCommunicator, screenManager);
-    };
+
+    System.out.println("add server listener success");
+    ServerCommunicator.ServerMessageListener listener = message -> handleServerMessage( message, sessionIds, listPanel, in, out, stateManager, serverCommunicator, screenManager, roomName);
 
     stateManager.addMessageListener(listener);
   }
 
-  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager,  ServerCommunicator serverCommunicator, ScreenManager screenManager) {
+  private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager,  ServerCommunicator serverCommunicator, ScreenManager screenManager, String roomName) {
     String[] tokens = message.split("\\|");
-    //System.out.println(message);
+    System.out.println(message + " -> innerwaitingroom listener success");
 
     if (tokens.length > 1) {
       String type = tokens[0];
@@ -68,7 +67,7 @@ public class InnerWaitingRoomComponent extends JPanel {
                     PlayerComponent player = new PlayerComponent(stateManager, serverCommunicator, screenManager,
                             Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, stateManager.getSessionId(), gameId
                     );
-                    screenManager.addScreen("Map", new MapComponent(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId));
+                    screenManager.addScreen("Map", new MapComponent(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId, roomName, sessionIds));
                     System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
                 } catch (Exception ex) {

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.HashMap;
+import java.util.Set;
 
 public class MapComponent extends JPanel {
     private MapComponentPanel[][] maps;
@@ -21,7 +22,7 @@ public class MapComponent extends JPanel {
     private final HashMap<String, Location> locations = new HashMap<>();
     private final int gameId;
 
-    public MapComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, PlayerComponent player, String sessionId, BufferedReader in, PrintWriter out, int gameId) {
+    public MapComponent(StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, PlayerComponent player, String sessionId, BufferedReader in, PrintWriter out, int gameId, String roomName, Set<String> sessionIds) {
         this.player = player;
         this.sessionId = sessionId;
         this.gameId = gameId;
@@ -84,14 +85,14 @@ public class MapComponent extends JPanel {
                 }
                 repaint();
             }else if(type.equals("213")){
-                String overed_gameId = tokens[1];
                 String result = Integer.parseInt(tokens[2]) == 1 ? "도망자 승리" : "술래 승리";
-                screenManager.addScreen("Result", new ResultComponent(stateManager, serverCommunicator, screenManager,result, overed_gameId, in, out));
+                screenManager.addScreen("Result", new ResultComponent(stateManager, serverCommunicator, screenManager, result, roomName, in, out, sessionIds));
                 SwingUtilities.invokeLater(() -> {
                     stateManager.switchTo("Result");
                 });
             }else if(type.equals("214")){
                 String disconnectedSessionId = tokens[1];
+                sessionIds.remove(disconnectedSessionId);
                 synchronized (locations){
                     locations.remove(disconnectedSessionId);
                 }
