@@ -3,16 +3,19 @@ package org.kunp.Servlet.menu;
 import org.kunp.Servlet.game.GameContextRegistry;
 import org.kunp.Servlet.game.GameRequestHandler;
 import org.kunp.Servlet.session.Session;
+import org.kunp.Servlet.session.SessionManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WaitingRoomContext {
   private final Map<String, OutputStream> participants = new ConcurrentHashMap<>();
-
+  private final Set<String> cancelList = new HashSet<>();
   private final String roomName;
   private int gameId;
   private String hostId;
@@ -68,14 +71,19 @@ public class WaitingRoomContext {
   }
 
   public void broadCast(String message) {
-    for (OutputStream oos : participants.values()) {
+    cancelList.forEach(participants::remove);
+    cancelList.clear();
+    for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       try {
+        OutputStream oos = entry.getValue();
         oos.write(message.getBytes());
         oos.flush();
       } catch (SocketException e) {
         System.err.println("SocketException: " + e.getMessage());
+        cancelList.add(entry.getKey());
       } catch (IOException e) {
         System.err.println("IOException: " + e.getMessage());
+        cancelList.add(entry.getKey());
       }
     }
   }
@@ -100,14 +108,37 @@ public class WaitingRoomContext {
     return timeLimit;
   }
 
+  public String getHostId() {
+    return hostId;
+  }
+
   public Map<String, OutputStream> getParticipants() {
     return participants;
   }
 
   // 게임 초기화
   public void initGame(Session session) {
-    this.exposeLevel = false;
-    this.gameId = GameRequestHandler.getInstance().createGameContextAndJoinAll(this, session);
+    boolean allParticipants = true;
+    for(Map.Entry<String, OutputStream> entry : participants.entrySet()) {
+      if(SessionManager.getInstance().getSession(entry.getKey()) == null) {
+        cancelList.add(entry.getKey());
+        allParticipants = false;
+      }
+    }
+
+    if(allParticipants) {
+      this.gameId = GameRequestHandler.getInstance().createGameContextAndJoinAll(this);
+      this.exposeLevel = false;
+
+    } else {
+      cancelList.forEach(participants::remove);
+      cancelList.forEach(e -> broadCast("111|%s\n".formatted(e)));
+      cancelList.clear();
+    }
+  }
+
+  private void checkParticipants() {
+
   }
 
   public void endGame() {

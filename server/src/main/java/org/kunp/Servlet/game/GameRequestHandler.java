@@ -22,11 +22,11 @@ public class GameRequestHandler {
         return gameRequestHandler;
     }
 
-    public int createGameContextAndJoinAll(WaitingRoomContext context, Session session) {
+    public int createGameContextAndJoinAll(WaitingRoomContext context) {
         int gameId =
         GameContextRegistry.getInstance()
             .createGameContext(
-                context.getRoomName(), session.getSessionId(), context.getUserLimit(), context.getTimeLimit());
+                context.getRoomName(), context.getHostId(), context.getUserLimit(), context.getTimeLimit());
         for(Map.Entry<String, OutputStream> entry : context.getParticipants().entrySet()) {
             Session user = SessionManager.getInstance().getSession(entry.getKey());
             GameContextRegistry.getInstance().subscribe(user, gameId);

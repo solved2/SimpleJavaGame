@@ -168,6 +168,7 @@ public class GameContext {
         entry.getValue().write(createGameStartMessage(gameId, isChaser.getOrDefault(entry.getKey(), RUNNER), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
         entry.getValue().flush();
       } catch (IOException e) {
+        cancelList.add(entry.getKey());
         throw new RuntimeException(e);
       }
     }
