@@ -30,7 +30,7 @@ public class GameContext {
   private LocalDateTime startTime;
   private LocalDateTime endTime;
 
-  public GameContext(int gameId, AtomicBoolean isFinished, int userlimit, int timelimit) {
+  public GameContext(int gameId, AtomicBoolean isFinished, int timelimit, int userlimit) {
     this.gameId = gameId;
     this.isFinished = isFinished;
     this.userlimit = userlimit;
@@ -39,7 +39,7 @@ public class GameContext {
 
   public void startTimer() {
     startTime = LocalDateTime.now();  // 게임 시작 시간 기록
-    endTime = startTime.plusSeconds(timelimit);  // 게임 종료 시간 계산
+    endTime = startTime.plusSeconds(60*timelimit);  // 게임 종료 시간 계산
     System.out.println("Game started.");
   }
 
@@ -93,6 +93,7 @@ public class GameContext {
 
 
   public void updateAndBroadCast() {
+    System.out.println("Start");
     for (Map.Entry<String, OutputStream> participant : participants.entrySet()) {
       try {
         OutputStream oos = participant.getValue();
@@ -105,6 +106,7 @@ public class GameContext {
       }
     }
     removeDisconnectedParticipants();
+    System.out.println("done");
   }
 
   public void enter(Session session) {
@@ -120,17 +122,27 @@ public class GameContext {
   public void setChasers() {
     initializePlayerStates();
     List<String> keys = new ArrayList<>(participants.keySet());
+
+
+    /* 전체 플레이어의 절반을 술래, 절반을 도망자로 배정 */
+    int numPlayers = keys.size();
     if (keys.size() < 2) {
       throw new IllegalStateException("Not enough participants to select two chasers");
     }
+
+    int numChasers = numPlayers / 2;
     Random random = new Random();
-    String chaser1 = keys.get(random.nextInt(keys.size()));
-    String chaser2;
-    do {
-      chaser2 = keys.get(random.nextInt(keys.size()));
-    } while (chaser1.equals(chaser2));
-    setChaser(chaser1);
-    setChaser(chaser2);
+    Set<String> chasers = new HashSet<>();
+    while(chasers.size() < numChasers) {
+      String chaser = keys.get(random.nextInt(keys.size()));
+      chasers.add(chaser);
+    }
+    // 선택된 술래들을 설정
+    for (String chaser : chasers) {
+      setChaser(chaser);
+    }
+
+
     for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
       try {
         entry.getValue().write(String.format("113|%d|%d|%d|%d\n", gameId, isChaser.getOrDefault(entry.getKey(), 1), positions.get(entry.getKey())[0], positions.get(entry.getKey())[1]).getBytes());
@@ -184,7 +196,7 @@ public class GameContext {
         playerStates.put(targetId, false); // 상태 업데이트 (갇힌 상태 해제)
 
         // 브로드캐스트: 도망자가 풀렸다
-        String response = createFreedResponse(212, targetId, targetPos[0], targetPos[1], roomNumber, gameId);
+        String response = createFreedResponse(212, targetId, targetPos[0], targetPos[1], roomNumber, gameId, targetPos[3]); // role도 쓰도록 수정
         sendMessageToAll(response);
       }
     }
@@ -204,11 +216,11 @@ public class GameContext {
 
       if (isAvailable(chaserPos, targetPos)) {
         // 도망자를 감옥으로 이동
-        positions.put(targetId, new int[]{JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER}); // 감옥 위치
+        positions.put(targetId, new int[]{JAIL_X, JAIL_Y, roomNumber}); // 감옥 위치
         playerStates.put(targetId, true); // 상태 업데이트 (갇힌 상태)
 
         // 브로드캐스트: 도망자가 잡혔다
-        String response = createCaughtResponse(211, targetId, JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER, gameId);
+        String response = createCaughtResponse(211, targetId, JAIL_X, JAIL_Y, roomNumber, gameId, targetPos[3]);
         sendMessageToAll(response);
       }
     }
@@ -272,12 +284,14 @@ public class GameContext {
     return String.format("%d|%d|%d\n", type, gameId, win);
   }
 
-  private String createCaughtResponse(int type, String sessionId, int x, int y, int roomNumber, int gameId) {
-    return String.format("%d|%s|%d|%d|%d|%d\n", type, sessionId, x, y, roomNumber, gameId);
+  // role도 쓰도록 수정
+  private String createCaughtResponse(int type, String sessionId, int x, int y, int roomNumber, int gameId, int role) {
+    return String.format("%d|%s|%d|%d|%d|%d|%d\n", type, sessionId, x, y, roomNumber, gameId, role);
   }
 
-  private String createFreedResponse(int type, String sessionId, int x, int y, int roomNumber, int gameId) {
-    return String.format("%d|%s|%d|%d|%d|%d\n", type, sessionId, x, y, roomNumber, gameId);
+  // role도 쓰도록 수정
+  private String createFreedResponse(int type, String sessionId, int x, int y, int roomNumber, int gameId, int role) {
+    return String.format("%d|%s|%d|%d|%d|%d|%d\n", type, sessionId, x, y, roomNumber, gameId, role);
   }
 
   private void sendMessageToAll(String message) {

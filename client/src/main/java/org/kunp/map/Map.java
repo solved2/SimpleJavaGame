@@ -57,6 +57,7 @@ public class Map extends JPanel {
         moveTimer.start();
 
         serverCommunicator.addMessageListener(message -> {
+            System.out.println(message);
             String[] tokens = message.split("\\|");
             String type = tokens[0];
             if(type.equals("210") || type.equals("211") || type.equals("212")){
