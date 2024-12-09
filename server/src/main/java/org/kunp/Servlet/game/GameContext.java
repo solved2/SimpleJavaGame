@@ -251,8 +251,11 @@ public class GameContext {
   //////////////////// 게임 로직 ///////////////////////
 
   private boolean isAvailable(int[] pos1, int[] pos2) {
-    return ((pos1[0] - pos2[0]) < 5) && ((pos1[1] - pos2[1]) < 5);
+    int dx = pos1[0] - pos2[0];
+    int dy = pos1[1] - pos2[1];
+    return (dx * dx + dy * dy) < (20 * 20); // 반지름 5 이내인지 확인
   }
+
 
   private void setChaser(String sessionId) {
     isChaser.put(sessionId, CHASER);
@@ -297,15 +300,22 @@ public class GameContext {
       String targetId = entry.getKey();
       int[] targetPos = entry.getValue();
 
-      if (!isRunner(targetId) || isPlayerDisabled(targetId)) continue; // 술래거나 잡힌 사용자 제외
+      // 술래거나 잡힌 사용자 제외
+      if (!isRunner(targetId) || isPlayerDisabled(targetId)) continue;
+
+      // 같은 방에 있는지 확인
+      if (chaserPos[2] != targetPos[2] || chaserPos[2] != roomNumber) continue;
+
+      // 도망자가 범위 내에 있는지 확인
       if (isAvailable(chaserPos, targetPos)) {
         // 도망자를 감옥으로 이동
         positions.put(targetId, new int[]{JAIL_X, JAIL_Y, JAIL_ROOM_NUMBER, targetPos[3]}); // 감옥 위치
         playerStates.put(targetId, true); // 상태 업데이트 (갇힌 상태)
-        sendMessageToAll(createCaughtResponse(targetId,JAIL_ROOM_NUMBER, gameId, targetPos[3]));
+        sendMessageToAll(createCaughtResponse(targetId, JAIL_ROOM_NUMBER, gameId, targetPos[3]));
       }
     }
   }
+
 
   private boolean isNearTouchDown(int[] runnerPos) {
     // 감옥 근처에 있는지 확인 (JAIL_X, JAIL_Y 기준)
