@@ -1,16 +1,26 @@
+~
+        ~
+                ~
+                        ~
+                                ~
+                                        "build.gradle" 20L, 324B                                                     18,20         All
 plugins {
     id 'java'
 }
 
-group = 'org.kunp'
-version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    // Your dependencies here
 }
 
-test {
+group = 'org.kunp'
+version = '1.0-SNAPSHOT'
+
+task run(type: JavaExec) {
+    main = 'org.kunp.Main'  // Replace with the fully qualified name of your main class
+    classpath = sourceSets.main.runtimeClasspath
 }
