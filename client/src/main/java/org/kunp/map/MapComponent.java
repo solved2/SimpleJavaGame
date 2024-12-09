@@ -123,6 +123,15 @@ public class MapComponent extends JPanel {
             }
         }
 
+        if(player.getRole().equals("tagger")){
+            currentMapX = 2;
+            currentMapY = 0;
+            player.setMapIdx(3);
+        }else{
+            currentMapX = 0;
+            currentMapY = 2;
+            player.setMapIdx(7);
+        }
         player.move(Constants.MAP_SIZE / 2 - player.getX(), Constants.MAP_SIZE / 2 - player.getY());
         setLayout(new BorderLayout());
         add(maps[currentMapX][currentMapY], BorderLayout.CENTER);
