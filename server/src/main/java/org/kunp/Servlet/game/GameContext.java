@@ -251,7 +251,7 @@ public class GameContext {
   //////////////////// 게임 로직 ///////////////////////
 
   private boolean isAvailable(int[] pos1, int[] pos2) {
-    return (pos1[0] - pos2[0] < 10) && (pos1[1] - pos2[1] < 10);
+    return ((pos1[0] - pos2[0]) < 5) && ((pos1[1] - pos2[1]) < 5);
   }
 
   private void setChaser(String sessionId) {
