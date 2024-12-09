@@ -13,7 +13,7 @@ public class GameThread implements Runnable{
       while(!gameContext.isFinished()) {
           try {
             gameContext.updateAndBroadCast();
-            Thread.sleep(10);
+            Thread.sleep(5);
           } catch (InterruptedException e) {
               System.out.println(e);
           }
