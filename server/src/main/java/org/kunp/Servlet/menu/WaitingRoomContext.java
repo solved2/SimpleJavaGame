@@ -125,11 +125,9 @@ public class WaitingRoomContext {
         allParticipants = false;
       }
     }
-
     if(allParticipants) {
       this.gameId = GameRequestHandler.getInstance().createGameContextAndJoinAll(this);
       this.exposeLevel = false;
-
     } else {
       cancelList.forEach(participants::remove);
       cancelList.forEach(e -> broadCast("111|%s\n".formatted(e)));

@@ -235,6 +235,7 @@ public class GameContext {
   private void removeDisconnectedParticipants() {
     for (String disconnectedClientId : cancelList) {
       for (Map.Entry<String, OutputStream> entry : participants.entrySet()) {
+        if(entry.getKey().equals(disconnectedClientId)) continue;
         try {
           entry.getValue().write(createLeaveResponse(disconnectedClientId).getBytes());
           entry.getValue().flush();

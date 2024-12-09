@@ -29,10 +29,9 @@ public class MenuRequestHandler {
     //103번 : 대기방 퇴장
     switch (message.getType()) {
       case 100:
-        System.out.println("대기방 조회");
-        System.out.println(waitingRoomRegistry.getWaitingRooms());
         OutputStream outputStream = (OutputStream) session.getAttributes().get("ops");
-        outputStream.write(String.format("112|%s\n", waitingRoomRegistry.getWaitingRooms()).getBytes(StandardCharsets.UTF_8));
+        outputStream.write(String.format("112|%s\n", waitingRoomRegistry.getWaitingRooms())
+            .getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
         break;
       case 101:

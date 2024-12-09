@@ -31,7 +31,6 @@ public class GameRequestHandler {
             Session user = SessionManager.getInstance().getSession(entry.getKey());
             GameContextRegistry.getInstance().subscribe(user, gameId);
         }
-      System.out.println("Game Created: " + gameId + " : " +  context.getRoomName() + " " + context.getUserLimit() + " " + context.getTimeLimit());
         GameContextRegistry.getInstance().startGameContext(gameId);
         return gameId;
     }
