@@ -45,12 +45,6 @@ public class ServerCommunicator {
         }
     }
 
-    public void removeMessageListener(ServerMessageListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
-    }
-
     private void notifyListeners(String message) {
         List<ServerMessageListener> listenersCopy;
         synchronized (listeners) {

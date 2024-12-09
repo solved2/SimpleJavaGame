@@ -1,17 +1,13 @@
 package org.kunp.inner;
 
-import org.kunp.manager.ScreenManager;
-import org.kunp.manager.ServerCommunicator;
 import org.kunp.manager.StateManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.PrintWriter;
 
 public class InnerWaitingRoomControlPanel extends JPanel {
 
-    public InnerWaitingRoomControlPanel(StateManager stateManager, ScreenManager screenManager,ServerCommunicator serverCommunicator, String roomName, BufferedReader in, PrintWriter out) {
+    public InnerWaitingRoomControlPanel(StateManager stateManager, String roomName) {
         setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         setPreferredSize(new Dimension(350, 50));
 
@@ -28,15 +24,13 @@ public class InnerWaitingRoomControlPanel extends JPanel {
         // 게임 시작 버튼
         startGameButton.addActionListener(e -> {
             String message = String.format("105|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
-            serverCommunicator.sendRequest(message);
+            stateManager.sendServerRequest(message, () -> {});
         });
 
         // 나가기 버튼
         exitButton.addActionListener(e -> {
             String message = String.format("103|%s|%s|%d|%d", stateManager.getSessionId(), roomName, 0, 0);
-            stateManager.sendServerRequest(message, () -> {
-                stateManager.switchTo("WaitingRoom");
-            });
+            stateManager.sendServerRequest(message, () -> stateManager.switchTo("WaitingRoom"));
         });
     }
 }

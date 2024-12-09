@@ -13,7 +13,7 @@ public class StateManager {
         this.screenManager = screenManager;
         this.serverCommunicator = serverCommunicator;
         this.sessionId = sessionId;
-        this.currentScreen = ""; // 초기화
+        this.currentScreen = "";
     }
 
     public String getSessionId() {
@@ -43,13 +43,7 @@ public class StateManager {
         this.currentListener = currentListener;
     }
 
-    public void removeMessageListener(ServerCommunicator.ServerMessageListener listener) {
-        serverCommunicator.removeMessageListener(listener);
-    }
-
     public ServerCommunicator.ServerMessageListener getCurrentListener() {
         return currentListener;
     }
 }
-
-

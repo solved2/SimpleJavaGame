@@ -13,9 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WaitingRoomListPanel extends JPanel {
-    ServerCommunicator serverCommunicator;
     public WaitingRoomListPanel(String sessionId, StateManager stateManager, ServerCommunicator serverCommunicator, ScreenManager screenManager, BufferedReader in, PrintWriter out) {
-        this.serverCommunicator = serverCommunicator;
         setLayout(new BorderLayout());
         setBorder(new TitledBorder("대기실 목록"));
 
@@ -53,10 +51,8 @@ public class WaitingRoomListPanel extends JPanel {
         });
 
         refreshButton.addActionListener(e -> {
-            // 방 목록 요청
             String requestMessage = String.format("100|%s|%s|%d|%d", sessionId, null, 0, 0); // 요청 메시지 형식
-            serverCommunicator.sendRequest(requestMessage);
+            stateManager.sendServerRequest(requestMessage, () -> {});
         });
     }
 }
-

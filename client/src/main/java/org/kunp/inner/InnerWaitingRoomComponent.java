@@ -31,7 +31,7 @@ public class InnerWaitingRoomComponent extends JPanel {
     InnerWaitingRoomListPanel listPanel = new InnerWaitingRoomListPanel(existingSessionIds);
     add(listPanel, BorderLayout.CENTER);
 
-    InnerWaitingRoomControlPanel controlPanel = new InnerWaitingRoomControlPanel(stateManager, screenManager, serverCommunicator, roomName, in, out);
+    InnerWaitingRoomControlPanel controlPanel = new InnerWaitingRoomControlPanel(stateManager, roomName);
     add(controlPanel, BorderLayout.SOUTH);
 
     ServerCommunicator.ServerMessageListener listener = message -> 
@@ -42,7 +42,7 @@ public class InnerWaitingRoomComponent extends JPanel {
 
   private void handleServerMessage(String message, Set<String> sessionIds, InnerWaitingRoomListPanel listPanel, BufferedReader in, PrintWriter out, StateManager stateManager,  ServerCommunicator serverCommunicator, ScreenManager screenManager, String roomName) {
     String[] tokens = message.split("\\|");
-    System.out.println(message + " -> innerwaitingroom listener success");
+    System.out.println(message);
 
     if (tokens.length > 1) {
       String type = tokens[0];
@@ -70,13 +70,11 @@ public class InnerWaitingRoomComponent extends JPanel {
                             Integer.parseInt(tokens[3]), Integer.parseInt(tokens[4]), role, out, stateManager.getSessionId(), gameId
                     );
                     screenManager.addScreen("Map", new MapComponent(stateManager, serverCommunicator, screenManager, player, stateManager.getSessionId(), in, out, gameId, roomName, sessionIds));
-                    System.out.println("Map screen added successfully.");
                     stateManager.switchTo("Map");
                 } catch (Exception ex) {
-                    ex.printStackTrace(); // 오류 출력
+                    ex.printStackTrace();
                 }
             });
-            //default -> System.out.println("Unhandled message type: " + type);
         }
       SwingUtilities.invokeLater(() -> listPanel.updateSessionList(sessionIds));
     }
